@@ -13,6 +13,7 @@ namespace TestSharpCifs
     [TestClass()]
     public class SmbFileTests : TestBase
     {
+        private DateTime EpocDate = new DateTime(1970, 1, 1, 0, 0, 0, DateTimeKind.Utc);
         private string UserName { get; set; }
         private string Password { get; set; }
         private string ServerName { get; set; }
@@ -27,24 +28,6 @@ namespace TestSharpCifs
         private string GetUriString(string path)
         {
             return $"smb://{this.UserName}:{this.Password}@{this.ServerName}/{path}";
-        }
-
-        private byte[] GetBytes(Stream stream)
-        {
-            var result = new List<byte>();
-            var buffer = new byte[1024];
-
-            while (true)
-            {
-                var size = stream.Read(buffer, 0, buffer.Length);
-                if (size <= 0)
-                    break;
-
-                result.AddRange(size == buffer.Length
-                    ? buffer
-                    : buffer.Take(size));
-            }
-            return result.ToArray();
         }
 
         [TestMethod()]
@@ -64,7 +47,7 @@ namespace TestSharpCifs
             Assert.AreNotEqual(null, readStream);
 
             var sjis = Encoding.GetEncoding("Shift_JIS");
-            var text = sjis.GetString(this.GetBytes(readStream));
+            var text = sjis.GetString(Xb.File.Util.GetBytes(readStream));
             this.Out(text);
             Assert.IsTrue(text.IndexOf("こんにちは") >= 0);
 
@@ -97,7 +80,7 @@ namespace TestSharpCifs
             var readStream = file2.GetInputStream();
             Assert.AreNotEqual(null, readStream);
 
-            var text = Encoding.UTF8.GetString(this.GetBytes(readStream));
+            var text = Encoding.UTF8.GetString(Xb.File.Util.GetBytes(readStream));
             this.Out(text);
             Assert.IsTrue(text.IndexOf("バイト") >= 0);
             readStream.Dispose();
@@ -126,6 +109,81 @@ namespace TestSharpCifs
 
                 this.Out($"Name: {file.GetName()}, isDir?: {file.IsDirectory()}, Date: {dateteime.ToString("yyyy-MM-dd HH:mm:ss")}"); 
             }
+        }
+
+
+        [TestMethod()]
+        public void ConfigTest1()
+        {
+            var props = new SharpCifs.Util.Sharpen.Properties();
+            props.SetProperty("jcifs.smb.client.username", "XXXX");
+            props.SetProperty("jcifs.smb.client.password", "XXXX");
+            SharpCifs.Config.SetProperties(props);
+
+
+            var uriString = $"smb://hostname/sharename/folder/";
+            var dir = new SmbFile(uriString);
+            Assert.IsTrue(dir.Exists());
+
+            var list = dir.ListFiles();
+            foreach (var file in list)
+            {
+                var name = file.GetName();
+                //Assert.IsTrue(name.IndexOf("filename") >= 0);
+
+                var time = file.LastModified();
+                var dateteime = EpocDate.AddMilliseconds(time).ToLocalTime();
+
+                this.Out($"Name: {file.GetName()}, isDir?: {file.IsDirectory()}, Date: {dateteime.ToString("yyyy-MM-dd HH:mm:ss")}");
+            }
+        }
+
+
+        [TestMethod()]
+        public void ConfigTest2()
+        {
+            SharpCifs.Config.SetProperty("jcifs.smb.client.username", "XXXX");
+            SharpCifs.Config.SetProperty("jcifs.smb.client.password", "XXXX");
+
+            var uriString = $"smb://hostname/sharename/folder/";
+            var dir = new SmbFile(uriString);
+            Assert.IsTrue(dir.Exists());
+
+            var list = dir.ListFiles();
+            foreach (var file in list)
+            {
+                var name = file.GetName();
+                //Assert.IsTrue(name.IndexOf("filename") >= 0);
+
+                var time = file.LastModified();
+                var dateteime = EpocDate.AddMilliseconds(time).ToLocalTime();
+
+                this.Out($"Name: {file.GetName()}, isDir?: {file.IsDirectory()}, Date: {dateteime.ToString("yyyy-MM-dd HH:mm:ss")}");
+            }
+        }
+
+        [TestMethod()]
+        public void ZipStreamReadingTest()
+        {
+            SharpCifs.Config.SetProperty("jcifs.smb.client.username", "XXXX");
+            SharpCifs.Config.SetProperty("jcifs.smb.client.password", "XXXX");
+            var uriString = $"smb://hostname/sharename/folder/";
+            var zipFile = new SmbFile(uriString);
+            Assert.IsTrue(zipFile.Exists());
+
+            var readStream = zipFile.GetInputStream();
+            
+
+            var xbZip = new Xb.File.Zip(readStream);
+
+            //xbZip.Entries
+            foreach (var entry in xbZip.Entries)
+            {
+                this.Out($"{entry.Name}");
+                var bytes = xbZip.GetBytes(entry);
+                this.Out($"bytes.Length: {bytes.Length}");
+            }
+
         }
     }
 }

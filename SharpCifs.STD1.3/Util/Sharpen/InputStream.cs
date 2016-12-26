@@ -18,7 +18,7 @@ namespace SharpCifs.Util.Sharpen
 		{
 			return s.GetWrappedStream ();
 		}
-		
+
 		public virtual int Available ()
 		{
 		    if (Wrapped is WrappedSystemStream)
