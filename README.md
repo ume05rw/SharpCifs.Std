@@ -1,19 +1,19 @@
 SharpCifs.Std
 ====
 
-Xamarin & .NET Core Ready, SMB/CIFS(Windows shared folder) Access Library.    
+SMB/CIFS(Windows shared folder) Access Library.    
 This is a port of [SharpCifs](https://github.com/zinkpad/SharpCifs) to .NET Standard.
   
-Xamarin/.NET Core対応のSMB/CIFS(Windows共有)アクセスライブラリです。  
+SMB/CIFS(Windows共有)アクセスライブラリです。  
 [SharpCifs](https://github.com/zinkpad/SharpCifs)を .NET Standard に移植したものです。  
 
 ## Description
 **It's still a pre-release version!**  
-You can access the Windows shared folder, NAS by Xamarin, .NET Core.(= without mpr.dll, Netapi32.dll)  
+You can access the Windows shared folder, NAS without mpr.dll, Netapi32.dll  
 It's a little rework of [SharpCifs](https://github.com/zinkpad/SharpCifs), and The origin is [JCIFS](https://jcifs.samba.org/).  
   
 **ざっくり動作確認しただけのプレリリース版です。** 不具合のお知らせは再現手順を添えて頂けるとありがたいです。  
-Windowsの共有フォルダやNASへ、Xamarin/.NET Coreアプリからアクセス出来ます。  
+Windowsの共有フォルダやNASへアクセス出来ます。  
 [JCIFS](https://jcifs.samba.org/)のWindows Phone 8.1移植版だった[SharpCifs](https://github.com/zinkpad/SharpCifs)を、.NET Standardで動作するように少しだけ書き換えています。  
 
 Supports .NET Standard 1.3 (= Xamarin.Android/iOS1.0, .NET Core1.0, .NET Framework 4.6)
