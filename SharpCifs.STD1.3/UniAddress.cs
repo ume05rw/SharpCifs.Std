@@ -21,6 +21,7 @@ using System.Net;
 using SharpCifs.Netbios;
 using SharpCifs.Util;
 using SharpCifs.Util.Sharpen;
+using Extensions = SharpCifs.Util.Sharpen.Extensions;
 
 namespace SharpCifs
 {

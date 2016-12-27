@@ -29,7 +29,7 @@ namespace SharpCifs.Util.Sharpen
                 //return new MessageDigest<SHA1Managed> ();
                 return new MessageDigest<System.Security.Cryptography.SHA1>();
             case "md5":
-			    return new MessageDigest<Md5Managed> ();
+                return new MessageDigest<Md5Managed> ();
             }
 			throw new NotSupportedException (string.Format ("The requested algorithm \"{0}\" is not supported.", algorithm));
 		}
@@ -44,20 +44,23 @@ namespace SharpCifs.Util.Sharpen
 	public class MessageDigest<TAlgorithm> : MessageDigest where TAlgorithm : HashAlgorithm //, new() //use static `Create` method
 	{
 		private TAlgorithm _hash;
-		private CryptoStream _stream;
-	    private MemoryStream _cryptedStream; //for reading crypted value. CryptoStream cannot read on Write mode
+        //private CryptoStream _stream; //don't work .NET Core
+        private MemoryStream _stream;
 
-		public MessageDigest ()
+
+        public MessageDigest ()
 		{
 			Init ();
 		}
 
 		public override byte[] Digest ()
 		{
-			_stream.FlushFinalBlock ();
+            //CryptoStream -> MemoryStream, needless method
+            //_stream.FlushFinalBlock ();
+
             //HashAlgorithm.`Hash` property deleted
             //byte[] hash = _hash.Hash;
-            byte[] hash = _hash.ComputeHash(_cryptedStream);
+            byte[] hash = _hash.ComputeHash(_stream.ToArray());
 
             Reset ();
 			return hash;
@@ -69,15 +72,9 @@ namespace SharpCifs.Util.Sharpen
 				_stream.Dispose ();
 			}
 			_stream = null;
-
-            if (_cryptedStream != null)
-            {
-                _cryptedStream.Dispose();
-            }
-            _cryptedStream = null;
         }
 
-		public override int GetDigestLength ()
+        public override int GetDigestLength ()
 		{
 			return (_hash.HashSize / 8);
 		}
@@ -89,13 +86,13 @@ namespace SharpCifs.Util.Sharpen
             var createMethod = typeof(TAlgorithm).GetRuntimeMethod("Create", new Type[0]);
             _hash = (TAlgorithm)createMethod.Invoke(null, new object[] {});
 
-            //for reading crypted value. CryptoStream cannot read on Write mode
-            _cryptedStream = new MemoryStream();
-            //_stream = new CryptoStream (Stream.Null, _hash, CryptoStreamMode.Write);
-            _stream = new CryptoStream(_cryptedStream, (ICryptoTransform)_hash, CryptoStreamMode.Write);
+            //HashAlgorithm cannot cast `ICryptoTransform` on .NET Core, gave up using CryptoStream. 
+            //_stream = new CryptoStream(Stream.Null, _hash, CryptoStreamMode.Write);
+            //_stream = new CryptoStream(_tmpStream, (ICryptoTransform)_hash, CryptoStreamMode.Write);
+            _stream = new MemoryStream();
         }
 
-		public override void Reset ()
+        public override void Reset ()
 		{
 			Dispose ();
 			Init ();
