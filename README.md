@@ -38,17 +38,20 @@ System.Threading.Thread (>= 4.3.0)
 
 Get Item in Folder:
 
-    var folder = new SmbFile("smb://UserName:Password@ServerName/ShareName/Folder/"));
+    var folder = new SmbFile("smb://UserName:Password@ServerName/ShareName/Folder/")); //<-need last'/' in directory
+    var epocDate = new DateTime(1970, 1, 1, 0, 0, 0, DateTimeKind.Utc);
     foreach (var item in folder.ListFiles())
     {
-        Console.WriteLine($"Name: {item.GetName()}, isDir?: {item.IsDirectory()}, Date: {item.LastModified()}"); 
+        var lastModDate = baseDate.AddMilliseconds(item.LastModified()).ToLocalTime();
+        Console.WriteLine($"Name: {item.GetName()}, isDir?: {item.IsDirectory()}, Date: {lastModDate.ToString("yyyy-MM-dd HH:mm:ss")}"); 
     }
   
 File Reading:  
 
     var file = new SmbFile("smb://UserName:Password@ServerName/ShareName/Folder/FileName.txt"));
     var readStream = file.GetInputStream();
-    var buffer = new byte[1024];
+    var buffer = new byte[1024*8];
+    var memStream = new MemoryStream();
     int size;
     while ((size = readStream.Read(buffer, 0, buffer.Length)) > 0)
         memStream.Write(buffer, 0, size);
