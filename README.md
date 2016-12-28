@@ -62,7 +62,7 @@ Create New file and Writing:
 
     var file = new SmbFile("smb://UserName:Password@ServerName/ShareName/Folder/NewFileName.txt"));
     file.CreateNewFile();
-    var writeStream = file2.GetOutputStream();
+    var writeStream = file.GetOutputStream();
     writeStream.Write(Encoding.UTF8.GetBytes("Hello!"));
 
 ## Licence
