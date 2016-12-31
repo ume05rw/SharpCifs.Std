@@ -20,9 +20,9 @@ namespace TestSharpCifs
 
         public SmbFileTests()
         {
-            //this.UserName = "XXXXX";
-            //this.Password = "XXXXX";
-            //this.ServerName = "XXXXX";
+            this.UserName = "XXXXX";
+            this.Password = "XXXXX";
+            this.ServerName = "XXXXX";
         }
 
         private string GetUriString(string path)
@@ -45,11 +45,13 @@ namespace TestSharpCifs
 
             var readStream = file.GetInputStream();
             Assert.AreNotEqual(null, readStream);
+            var stream = (Stream) readStream;
+            Assert.IsTrue(stream.CanRead);
+            Assert.IsTrue(stream.CanSeek);
+            Assert.AreEqual(0, stream.Position);
 
-            var sjis = Encoding.GetEncoding("Shift_JIS");
-            var text = sjis.GetString(Xb.File.Util.GetBytes(readStream));
+            var text = Encoding.UTF8.GetString(Xb.Byte.GetBytes(stream));
             this.Out(text);
-            Assert.IsTrue(text.IndexOf("こんにちは") >= 0);
 
             readStream.Dispose();
         }
@@ -116,12 +118,12 @@ namespace TestSharpCifs
         public void ConfigTest1()
         {
             var props = new SharpCifs.Util.Sharpen.Properties();
-            props.SetProperty("jcifs.smb.client.username", "XXXX");
-            props.SetProperty("jcifs.smb.client.password", "XXXX");
+            props.SetProperty("jcifs.smb.client.username", this.UserName);
+            props.SetProperty("jcifs.smb.client.password", this.Password);
             SharpCifs.Config.SetProperties(props);
 
 
-            var uriString = $"smb://hostname/sharename/folder/";
+            var uriString = $"smb://{this.ServerName}/Apps/Others/";
             var dir = new SmbFile(uriString);
             Assert.IsTrue(dir.Exists());
 
@@ -142,10 +144,10 @@ namespace TestSharpCifs
         [TestMethod()]
         public void ConfigTest2()
         {
-            SharpCifs.Config.SetProperty("jcifs.smb.client.username", "XXXX");
-            SharpCifs.Config.SetProperty("jcifs.smb.client.password", "XXXX");
+            SharpCifs.Config.SetProperty("jcifs.smb.client.username", this.UserName);
+            SharpCifs.Config.SetProperty("jcifs.smb.client.password", this.Password);
 
-            var uriString = $"smb://hostname/sharename/folder/";
+            var uriString = $"smb://{this.ServerName}/Apps/Others/";
             var dir = new SmbFile(uriString);
             Assert.IsTrue(dir.Exists());
 
@@ -165,9 +167,10 @@ namespace TestSharpCifs
         [TestMethod()]
         public void ZipStreamReadingTest()
         {
-            SharpCifs.Config.SetProperty("jcifs.smb.client.username", "XXXX");
-            SharpCifs.Config.SetProperty("jcifs.smb.client.password", "XXXX");
-            var uriString = $"smb://hostname/sharename/folder/";
+            SharpCifs.Config.SetProperty("jcifs.smb.client.username", this.UserName);
+            SharpCifs.Config.SetProperty("jcifs.smb.client.password", this.Password);
+            var uriString = $"smb://{this.ServerName}/Apps/Others/[BinaryEditor] Stirling.zip";
+
             var zipFile = new SmbFile(uriString);
             Assert.IsTrue(zipFile.Exists());
 
