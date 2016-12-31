@@ -170,22 +170,26 @@ namespace SharpCifs.Smb
 			{
 				return 0;
 			}
+
 			long start = _fp;
 			if (_tmp == null)
 			{
 				throw new IOException("Bad file descriptor");
 			}
+
 			// ensure file is open
 			File.Open(_openFlags, _access, SmbFile.AttrNormal, 0);
 			if (File.Log.Level >= 4)
 			{
 				File.Log.WriteLine("read: fid=" + File.Fid + ",off=" + off + ",len=" + len);
 			}
+
 			SmbComReadAndXResponse response = new SmbComReadAndXResponse(b, off);
 			if (File.Type == SmbFile.TypeNamedPipe)
 			{
 				response.ResponseTimeout = 0;
 			}
+
 			int r;
 			int n;
 			do
@@ -195,6 +199,7 @@ namespace SharpCifs.Smb
 				{
 					File.Log.WriteLine("read: len=" + len + ",r=" + r + ",fp=" + _fp);
 				}
+
 				try
 				{
 					SmbComReadAndX request = new SmbComReadAndX(File.Fid, _fp, r, null);
@@ -202,6 +207,7 @@ namespace SharpCifs.Smb
 					{
 						request.MinCount = request.MaxCount = request.Remaining = 1024;
 					}
+                    //Ç±Ç±Ç≈ì«Ç›çûÇÒÇ≈Ç¢ÇÈÇÁÇµÇ¢ÅB
 					File.Send(request, response);
 				}
 				catch (SmbException se)
@@ -212,15 +218,19 @@ namespace SharpCifs.Smb
 					}
 					throw SeToIoe(se);
 				}
+
 				if ((n = response.DataLength) <= 0)
 				{
 					return (int)((_fp - start) > 0L ? _fp - start : -1);
 				}
+
 				_fp += n;
 				len -= n;
 				response.Off += n;
 			}
 			while (len > 0 && n == r);
+
+
 			return (int)(_fp - start);
 		}
 
@@ -282,9 +292,44 @@ namespace SharpCifs.Smb
 			return 0;
 		}
 
-	    /// <summary>
-	    /// Get file length
-	    /// </summary>
+
+        /// <summary>
+        /// Position in Stream
+        /// </summary>
+        /// <remarks>
+        /// Add by dobes
+        /// mod interface to WrappedSystemStream readable, for random access.
+        /// </remarks>
+	    internal override long Position {
+	        get { return this._fp; }
+	        set
+	        {
+	            var tmpPos = value;
+	            var length = File.Length();
+	            if (tmpPos < 0)
+	                tmpPos = 0;
+                else if (length < tmpPos)
+	                tmpPos = length;
+	            this._fp = tmpPos;
+	        }
+	    }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <returns></returns>
+        /// <remarks>
+        /// Add by dobes
+        /// mod interface to WrappedSystemStream readable, for random access.
+        /// </remarks>
+	    internal override bool CanSeek()
+	    {
+	        return (File.Length() >= 0);
+	    }
+
+        /// <summary>
+        /// Get file length
+        /// </summary>
         public override long Length
 	    {
 	        get { return File.Length(); }

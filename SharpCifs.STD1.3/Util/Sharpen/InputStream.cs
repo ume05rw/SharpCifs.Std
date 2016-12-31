@@ -40,8 +40,8 @@ namespace SharpCifs.Util.Sharpen
 			Close ();
 		}
 
-		internal Stream GetWrappedStream ()
-		{
+        internal Stream GetWrappedStream ()
+        {
 			// Always create a wrapper stream (not directly Wrapped) since the subclass
 			// may be overriding methods that need to be called when used through the Stream class
 			return new WrappedSystemStream (this);
@@ -124,14 +124,14 @@ namespace SharpCifs.Util.Sharpen
 			return cnt - n;
 		}
 		
-		internal bool CanSeek ()
+		internal virtual bool CanSeek ()
 		{
 		    if (Wrapped != null)
 				return Wrapped.CanSeek;
 		    return false;
 		}
 
-	    internal long Position {
+	    internal virtual long Position {
 			get
 			{
 			    if (Wrapped != null)
