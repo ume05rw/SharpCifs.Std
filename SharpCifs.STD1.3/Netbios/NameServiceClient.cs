@@ -19,9 +19,11 @@ using System.Collections.Generic;
 using System.IO;
 using System.Net;
 using System.Net.Sockets;
+using System.Linq;
 using System.Threading;
 using SharpCifs.Util;
 using SharpCifs.Util.Sharpen;
+
 using Thread = SharpCifs.Util.Sharpen.Thread;
 
 namespace SharpCifs.Netbios
@@ -106,7 +108,7 @@ namespace SharpCifs.Netbios
         internal NameServiceClient(int lport, IPAddress laddr)
         {
             this._lport = lport;
-            this.laddr = laddr;
+            this.laddr = laddr ?? Extensions.GetAddressesByName(Dns.GetHostName()).FirstOrDefault();
 
             try
             {
