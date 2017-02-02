@@ -5,6 +5,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+using SharpCifs.Netbios;
 using SharpCifs.Smb;
 using TestXb;
 
@@ -186,7 +187,19 @@ namespace TestSharpCifs
                 var bytes = xbZip.GetBytes(entry);
                 this.Out($"bytes.Length: {bytes.Length}");
             }
+        }
 
+        [TestMethod()]
+        public void LanScanTest()
+        {
+            //Config.GetInt("jcifs.netbios.lport", 137)
+            SharpCifs.Config.SetProperty("jcifs.netbios.lport", "8137");
+
+            var hosts = NbtAddress.GetHosts();
+            foreach (var nbtAddress in hosts)
+            {
+                Xb.Util.Out(nbtAddress.GetInetAddress().ToString());
+            }
         }
     }
 }
