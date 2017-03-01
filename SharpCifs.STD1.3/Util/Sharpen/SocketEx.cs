@@ -54,27 +54,30 @@ namespace SharpCifs.Util.Sharpen
 
         public void Connect(IPEndPoint endPoint, int timeOut)
         {
-            AutoResetEvent autoReset = new AutoResetEvent(false);
-
-            SocketAsyncEventArgs args = new SocketAsyncEventArgs
+            using (var evt = new ManualResetEventSlim(false))
             {
-                RemoteEndPoint = endPoint
-            };
+                using (var args = new SocketAsyncEventArgs
+                {
+                    RemoteEndPoint = endPoint
+                })
+                {
+                    args.Completed += delegate
+                    {
+                        evt.Set();
+                    };
 
-            args.Completed += delegate {
-                autoReset.Set();
-            };
+                    ConnectAsync(args);
 
-            ConnectAsync(args);
-
-            if (!autoReset.WaitOne(timeOut))
-            {
-                CancelConnectAsync(args);
-                throw new ConnectException("Can't connect to end point.");
-            }
-            if (args.SocketError != SocketError.Success)
-            {
-                throw new ConnectException("Can't connect to end point.");
+                    if (!evt.Wait(timeOut))
+                    {
+                        CancelConnectAsync(args);
+                        throw new ConnectException("Can't connect to end point.");
+                    }
+                    if (args.SocketError != SocketError.Success)
+                    {
+                        throw new ConnectException("Can't connect to end point.");
+                    }
+                }
             }
         }
 
@@ -89,48 +92,58 @@ namespace SharpCifs.Util.Sharpen
 
         public int Receive(byte[] buffer, int offset, int count)
         {
-            AutoResetEvent autoReset = new AutoResetEvent(false);
-            SocketAsyncEventArgs args = new SocketAsyncEventArgs();
-
-            args.UserToken = this;
-            args.SetBuffer(buffer, offset, count);
-
-            args.Completed += delegate 
+            using (var evt = new ManualResetEventSlim(false))
             {
-                autoReset.Set();
-            };
+                using (var args = new SocketAsyncEventArgs
+                {
+                    UserToken = this
+                })
+                {
+                    args.SetBuffer(buffer, offset, count);
 
-            if (ReceiveAsync(args))
-            {
-                if (!autoReset.WaitOne(_soTimeOut))
-                {                                      
-                    throw new TimeoutException("No data received.");
+                    args.Completed += delegate
+                    {
+                        evt.Set();
+                    };
+
+                    if (ReceiveAsync(args))
+                    {
+                        if (!evt.Wait(_soTimeOut))
+                        {
+                            throw new TimeoutException("No data received.");
+                        }
+                    }
+
+                    return args.BytesTransferred;
                 }
             }
-
-            return args.BytesTransferred;
         }
 
         public void Send(byte[] buffer, int offset, int length, EndPoint destination = null)
         {
-            AutoResetEvent autoReset = new AutoResetEvent(false);
-            SocketAsyncEventArgs args = new SocketAsyncEventArgs();
-
-            args.UserToken = this;
-            args.SetBuffer(buffer, offset, length);
-
-            args.Completed += delegate 
+            using (var evt = new ManualResetEventSlim(false))
             {
-                autoReset.Set();
-            };
+                using (SocketAsyncEventArgs args = new SocketAsyncEventArgs
+                {
+                    UserToken = this
+                })
+                {
+                    args.SetBuffer(buffer, offset, length);
 
-            args.RemoteEndPoint = destination ?? RemoteEndPoint;
+                    args.Completed += delegate
+                    {
+                        evt.Set();
+                    };
+
+                    args.RemoteEndPoint = destination ?? RemoteEndPoint;
 
 
-            SendToAsync(args);
-            if (!autoReset.WaitOne(_soTimeOut))
-            {
-                throw new TimeoutException("No data sent.");
+                    SendToAsync(args);
+                    if (!evt.Wait(_soTimeOut))
+                    {
+                        throw new TimeoutException("No data sent.");
+                    }
+                }
             }
         }
 
