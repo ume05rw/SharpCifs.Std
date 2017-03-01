@@ -21,9 +21,9 @@ namespace TestSharpCifs
 
         public SmbFileTests()
         {
-            this.UserName = "XXXXX";
-            this.Password = "XXXXX";
-            this.ServerName = "XXXXX";
+            this.UserName = "XXXX";
+            this.Password = "XXXX";
+            this.ServerName = "XXXX";
         }
 
         private string GetUriString(string path)
@@ -189,17 +189,17 @@ namespace TestSharpCifs
             }
         }
 
-        [TestMethod()]
-        public void LanScanTest()
-        {
-            //Config.GetInt("jcifs.netbios.lport", 137)
-            SharpCifs.Config.SetProperty("jcifs.netbios.lport", "8137");
+        //[TestMethod()]
+        //public void LanScanTest()
+        //{
+        //    //Config.GetInt("jcifs.netbios.lport", 137)
+        //    SharpCifs.Config.SetProperty("jcifs.netbios.lport", "8137");
 
-            var hosts = NbtAddress.GetHosts();
-            foreach (var nbtAddress in hosts)
-            {
-                Xb.Util.Out(nbtAddress.GetInetAddress().ToString());
-            }
-        }
+        //    var hosts = NbtAddress.GetHosts();
+        //    foreach (var nbtAddress in hosts)
+        //    {
+        //        Xb.Util.Out(nbtAddress.GetInetAddress().ToString());
+        //    }
+        //}
     }
 }
