@@ -108,7 +108,10 @@ namespace SharpCifs.Netbios
         internal NameServiceClient(int lport, IPAddress laddr)
         {
             this._lport = lport;
-            this.laddr = laddr ?? Extensions.GetAddressesByName(Dns.GetHostName()).FirstOrDefault();
+
+            this.laddr = laddr 
+                            ?? Config.GetLocalHost() 
+                            ?? Extensions.GetAddressesByName(Dns.GetHostName()).FirstOrDefault();
 
             try
             {
