@@ -57,10 +57,10 @@ namespace SharpCifs.Util.Sharpen
             }
         }
 
-        private Thread(System.Threading.Thread t)
+        private Thread(int threadId)
         {
             //_thread = t;
-            this._id = t.ManagedThreadId;
+            this._id = threadId;
 
             _tgroup = _defaultGroup;
             _tgroup.Add(this);
@@ -70,7 +70,7 @@ namespace SharpCifs.Util.Sharpen
         {
             if (_wrapperThread == null)
             {
-                _wrapperThread = new Thread(System.Threading.Thread.CurrentThread);
+                _wrapperThread = new Thread(System.Environment.CurrentManagedThreadId);
             }
             return _wrapperThread;
         }
@@ -178,7 +178,8 @@ namespace SharpCifs.Util.Sharpen
 
         public static void Sleep(long milis)
         {
-            System.Threading.Thread.Sleep((int)milis);
+            //System.Threading.Thread.Sleep((int)milis);
+            System.Threading.Tasks.Task.Delay((int) milis).Wait();
         }
 
         public void Start()
@@ -195,7 +196,7 @@ namespace SharpCifs.Util.Sharpen
                 //}
 
                 _wrapperThread = this;
-                this._id = System.Threading.Thread.CurrentThread.ManagedThreadId;
+                this._id = System.Environment.CurrentManagedThreadId;
 
                 try
                 {
