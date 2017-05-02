@@ -267,7 +267,8 @@ namespace SharpCifs.Netbios
             try
             {
 
-                while (_thread == Thread.CurrentThread())
+                //while (_thread == Thread.CurrentThread())
+                while (_thread.Equals(Thread.CurrentThread()))
                 {
                     _socket.SoTimeOut = _closeTimeout;
 

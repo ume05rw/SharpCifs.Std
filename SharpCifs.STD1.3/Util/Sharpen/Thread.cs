@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Threading;
 
 namespace SharpCifs.Util.Sharpen
 {
@@ -9,7 +10,17 @@ namespace SharpCifs.Util.Sharpen
         private bool _interrupted;
         private IRunnable _runnable;
         private ThreadGroup _tgroup;
-        private System.Threading.Thread _thread;
+
+        //private System.Threading.Thread _thread;
+        private string _name = string.Empty;
+        private bool _isBackground = true;
+        private int? _id = null;
+        private System.Threading.Tasks.Task _task = null;
+        private System.Threading.CancellationTokenSource _canceller = null;
+
+        public int? Id => this._id;
+
+
 
         [ThreadStatic]
         private static Thread _wrapperThread;
@@ -32,18 +43,25 @@ namespace SharpCifs.Util.Sharpen
 
         Thread(IRunnable runnable, ThreadGroup grp, string name)
         {
-            _thread = new System.Threading.Thread(InternalRun);
+            //_thread = new System.Threading.Thread(InternalRun);
 
             this._runnable = runnable ?? this;
             _tgroup = grp ?? _defaultGroup;
             _tgroup.Add(this);
+
+
             if (name != null)
-                _thread.Name = name;
+            {
+                //_thread.Name = name;
+                this._name = name;
+            }
         }
 
         private Thread(System.Threading.Thread t)
         {
-            _thread = t;
+            //_thread = t;
+            this._id = t.ManagedThreadId;
+
             _tgroup = _defaultGroup;
             _tgroup.Add(this);
         }
@@ -59,7 +77,8 @@ namespace SharpCifs.Util.Sharpen
 
         public string GetName()
         {
-            return _thread.Name;
+            //return _thread.Name;
+            return this._name;
         }
 
         public ThreadGroup GetThreadGroup()
@@ -67,22 +86,23 @@ namespace SharpCifs.Util.Sharpen
             return _tgroup;
         }
 
-        private void InternalRun()
-        {
-            _wrapperThread = this;
-            try
-            {
-                _runnable.Run();
-            }
-            catch (Exception exception)
-            {
-                Console.WriteLine(exception);
-            }
-            finally
-            {
-                _tgroup.Remove(this);
-            }
-        }
+        //moved into Task.Run of Start method
+        //private void InternalRun()
+        //{
+        //    _wrapperThread = this;
+        //    try
+        //    {
+        //        _runnable.Run();
+        //    }
+        //    catch (Exception exception)
+        //    {
+        //        Console.WriteLine(exception);
+        //    }
+        //    finally
+        //    {
+        //        _tgroup.Remove(this);
+        //    }
+        //}
 
         public static void Yield()
         {
@@ -90,15 +110,15 @@ namespace SharpCifs.Util.Sharpen
 
         public void Interrupt()
         {
-            lock (_thread)
-            {
-                _interrupted = true;
-                //thread.Interrupt ();
+            //lock (_thread)
+            //{
+            //    _interrupted = true;
+            //    _thread.Interrupt ();
+            //    _thread.Abort();
+            //}
 
-                //TODO: implement CancellationToken 
-                //_thread.Abort();
-                throw new NotImplementedException("implement CancellationToken for thread");
-            }
+            this._interrupted = true;
+            this._canceller?.Cancel(true);
         }
 
         public static bool Interrupted()
@@ -118,17 +138,26 @@ namespace SharpCifs.Util.Sharpen
 
         public bool IsAlive()
         {
-            return _thread.IsAlive;
+            //return _thread.IsAlive;
+            if (this._task == null)
+                return true; //実行されていない
+
+            //Taskが存在し、続行中のときtrue
+            return (!this._task.IsCanceled
+                    && !this._task.IsFaulted
+                    && !this._task.IsCompleted);
         }
 
         public void Join()
         {
-            _thread.Join();
+            //_thread.Join();
+            this._task?.Wait();
         }
 
         public void Join(long timeout)
         {
-            _thread.Join((int)timeout);
+            //_thread.Join((int)timeout);
+            this._task?.Wait((int) timeout);
         }
 
         public virtual void Run()
@@ -137,12 +166,14 @@ namespace SharpCifs.Util.Sharpen
 
         public void SetDaemon(bool daemon)
         {
-            _thread.IsBackground = daemon;
+            //_thread.IsBackground = daemon;
+            this._isBackground = daemon;
         }
 
         public void SetName(string name)
         {
-            _thread.Name = name;
+            //_thread.Name = name;
+            this._name = name;
         }
 
         public static void Sleep(long milis)
@@ -152,14 +183,54 @@ namespace SharpCifs.Util.Sharpen
 
         public void Start()
         {
-            _thread.Start();
+            //_thread.Start();
+            this._canceller = new CancellationTokenSource();
+            
+            this._task = System.Threading.Tasks.Task.Run(() =>
+            {
+                //ThreadPool's thread NOT to use Foreground
+                //if (!this._isBackground)
+                //{
+                //    System.Threading.Thread.CurrentThread.IsBackground = false;
+                //}
+
+                _wrapperThread = this;
+                this._id = System.Threading.Thread.CurrentThread.ManagedThreadId;
+
+                try
+                {
+                    _runnable.Run();
+                }
+                catch (Exception exception)
+                {
+                    Console.WriteLine(exception);
+                }
+                finally
+                {
+                    _tgroup.Remove(this);
+                }
+            }, this._canceller.Token);
         }
 
         public void Abort()
         {
-            //TODO: implement CancellationToken 
-            //_thread.Abort ();
-            throw new NotImplementedException("implement CancellationToken for thread");
+            //_thread.Abort();
+            this._canceller?.Cancel(true);
+        }
+
+
+        public bool Equals(Thread thread)
+        {
+            //渡し値スレッドがnullのとき、合致しない
+            if (thread == null)
+                return false;
+
+            //自身か渡し値スレッドが実行されていないとき、合致しない
+            if (this.Id == null
+                || thread.Id == null)
+                return false;
+
+            return (this.Id == thread.Id);
         }
 
     }

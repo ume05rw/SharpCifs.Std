@@ -142,7 +142,8 @@ namespace SharpCifs.Util.Transport
 
         private void Loop()
         {
-            while (Thread == Thread.CurrentThread())
+            //while (Thread == Thread.CurrentThread())
+            while (Thread.Equals(Thread.CurrentThread()))
             {
                 try
                 {
@@ -423,7 +424,8 @@ namespace SharpCifs.Util.Transport
             {
                 lock (runThread)
                 {
-                    if (runThread != Thread)
+                    //if (runThread != Thread)
+                    if (!runThread.Equals(Thread))
                     {
                         if (ex0 != null)
                         {

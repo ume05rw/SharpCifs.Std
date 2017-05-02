@@ -178,8 +178,12 @@ namespace SharpCifs
 
             internal UnknownHostException Uhe;
 
-            internal QueryThread(Sem sem, string host, int type, string scope, IPAddress
-                 svr) : base("JCIFS-QueryThread: " + host)
+            internal QueryThread(Sem sem, 
+                                 string host, 
+                                 int type, 
+                                 string scope, 
+                                 IPAddress svr) 
+                : base("JCIFS-QueryThread: " + host)
             {
                 this.Sem = sem;
                 this.Host = host;
