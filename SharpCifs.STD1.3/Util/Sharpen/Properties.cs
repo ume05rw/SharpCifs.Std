@@ -11,7 +11,7 @@ namespace SharpCifs.Util.Sharpen
             _properties = new Hashtable();
         }
 
-        public Properties(Properties defaultProp): this()
+        public Properties(Properties defaultProp) : this()
         {
             PutAll(defaultProp._properties);
         }
@@ -45,7 +45,7 @@ namespace SharpCifs.Util.Sharpen
             return def;*/
             object value = _properties.Get(key);
 
-            return value ?? def;            
+            return value ?? def;
         }
 
         public void Load(InputStream input)
@@ -75,7 +75,7 @@ namespace SharpCifs.Util.Sharpen
         }
 
         public void Store(TextWriter output)
-        {            
+        {
             foreach (var key in _properties.Keys)
             {
                 string line = string.Format("{0}={1}", key, _properties[key]);

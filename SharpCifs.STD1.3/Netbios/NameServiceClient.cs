@@ -48,27 +48,29 @@ namespace SharpCifs.Netbios
 
         internal const int ResolverWins = 3;
 
-        private static readonly int SndBufSize = Config.GetInt("jcifs.netbios.snd_buf_size"
-            , DefaultSndBufSize);
+        private static readonly int SndBufSize
+            = Config.GetInt("jcifs.netbios.snd_buf_size", DefaultSndBufSize);
 
-        private static readonly int RcvBufSize = Config.GetInt("jcifs.netbios.rcv_buf_size"
-            , DefaultRcvBufSize);
+        private static readonly int RcvBufSize
+            = Config.GetInt("jcifs.netbios.rcv_buf_size", DefaultRcvBufSize);
 
-        private static readonly int SoTimeout = Config.GetInt("jcifs.netbios.soTimeout",
-            DefaultSoTimeout);
+        private static readonly int SoTimeout
+            = Config.GetInt("jcifs.netbios.soTimeout", DefaultSoTimeout);
 
-        private static readonly int RetryCount = Config.GetInt("jcifs.netbios.retryCount"
-            , DefaultRetryCount);
+        private static readonly int RetryCount
+            = Config.GetInt("jcifs.netbios.retryCount", DefaultRetryCount);
 
-        private static readonly int RetryTimeout = Config.GetInt("jcifs.netbios.retryTimeout"
-            , DefaultRetryTimeout);
+        private static readonly int RetryTimeout
+            = Config.GetInt("jcifs.netbios.retryTimeout", DefaultRetryTimeout);
 
-        private static readonly int Lport = Config.GetInt("jcifs.netbios.lport", 137);
+        private static readonly int Lport
+            = Config.GetInt("jcifs.netbios.lport", 137);
 
-        private static readonly IPAddress Laddr = Config.GetInetAddress("jcifs.netbios.laddr"
-            , null);
+        private static readonly IPAddress Laddr
+            = Config.GetInetAddress("jcifs.netbios.laddr", null);
 
-        private static readonly string Ro = Config.GetProperty("jcifs.resolveOrder");
+        private static readonly string Ro
+            = Config.GetProperty("jcifs.resolveOrder");
 
         private static LogStream _log = LogStream.GetInstance();
 
@@ -87,7 +89,7 @@ namespace SharpCifs.Netbios
         private Hashtable _responseTable = new Hashtable();
 
         private Thread _thread;
-        
+
         private int _nextNameTrnId;
 
         private int[] _resolveOrder;
@@ -109,13 +111,14 @@ namespace SharpCifs.Netbios
         {
             this._lport = lport;
 
-            this.laddr = laddr 
-                            ?? Config.GetLocalHost() 
+            this.laddr = laddr
+                            ?? Config.GetLocalHost()
                             ?? Extensions.GetAddressesByName(Dns.GetHostName()).FirstOrDefault();
 
             try
             {
-                Baddr = Config.GetInetAddress("jcifs.netbios.baddr", Extensions.GetAddressByName("255.255.255.255"));
+                Baddr = Config.GetInetAddress("jcifs.netbios.baddr",
+                                              Extensions.GetAddressByName("255.255.255.255"));
             }
             catch (Exception ex)
             {
@@ -161,8 +164,8 @@ namespace SharpCifs.Netbios
                             {
                                 if (_log.Level > 1)
                                 {
-                                    _log.WriteLine("NetBIOS resolveOrder specifies WINS however the " + "jcifs.netbios.wins property has not been set"
-                                        );
+                                    _log.WriteLine("NetBIOS resolveOrder specifies WINS however the "
+                                                   + "jcifs.netbios.wins property has not been set");
                                 }
                                 continue;
                             }
@@ -218,7 +221,7 @@ namespace SharpCifs.Netbios
             if (_socket == null)
             {
                 _socket = new SocketEx(AddressFamily.InterNetwork, SocketType.Dgram, ProtocolType.Udp);
-                
+
                 //IPAddress.`Address` property deleted
                 //_socket.Bind(new IPEndPoint(laddr.Address, _lport));
                 _socket.Bind(new IPEndPoint(laddr, _lport));
@@ -227,7 +230,7 @@ namespace SharpCifs.Netbios
                 {
                     _thread = new Thread(this); //new Sharpen.Thread(this, "JCIFS-NameServiceClient");
                     _thread.SetDaemon(true);
-                    _thread.Start();                    
+                    _thread.Start();
                 }
             }
         }
@@ -248,7 +251,8 @@ namespace SharpCifs.Netbios
                 if (_waitResponse)
                 {
                     _responseTable.Clear();
-                } else
+                }
+                else
                 {
                     _autoResetWaitReceive.Set();
                 }
@@ -317,8 +321,9 @@ namespace SharpCifs.Netbios
         }
 
         /// <exception cref="System.IO.IOException"></exception>
-        internal virtual void Send(NameServicePacket request, NameServicePacket response,
-            int timeout)
+        internal virtual void Send(NameServicePacket request,
+                                   NameServicePacket response,
+                                   int timeout)
         {
             int nid = 0;
             int max = NbtAddress.Nbns.Length;
@@ -342,7 +347,10 @@ namespace SharpCifs.Netbios
                             _responseTable.Put(nid, response);
                             EnsureOpen(timeout + 1000);
                             int requestLenght = request.WriteWireFormat(_sndBuf, 0);
-                            _socket.Send(_sndBuf, 0, requestLenght, new IPEndPoint(request.Addr, _lport));
+                            _socket.Send(_sndBuf,
+                                         0,
+                                         requestLenght,
+                                         new IPEndPoint(request.Addr, _lport));
                             if (_log.Level > 3)
                             {
                                 _log.WriteLine(request);
@@ -496,8 +504,9 @@ namespace SharpCifs.Netbios
                         case ResolverWins:
                         case ResolverBcast:
                             {
-                                if (_resolveOrder[i] == ResolverWins && name.name != NbtAddress.MasterBrowserName
-                                     && name.HexCode != unchecked(0x1d))
+                                if (_resolveOrder[i] == ResolverWins
+                                    && name.name != NbtAddress.MasterBrowserName
+                                    && name.HexCode != unchecked(0x1d))
                                 {
                                     request.Addr = NbtAddress.GetWinsAddress();
                                     request.IsBroadcast = false;
@@ -526,7 +535,8 @@ namespace SharpCifs.Netbios
                                         && response.IsResponse)
                                     {
 
-                                        response.AddrEntry[0].HostName.SrcHashCode = request.Addr.GetHashCode();
+                                        response.AddrEntry[0].HostName.SrcHashCode
+                                            = request.Addr.GetHashCode();
                                         return response.AddrEntry[0];
                                     }
                                     if (_resolveOrder[i] == ResolverWins)
@@ -608,9 +618,13 @@ namespace SharpCifs.Netbios
                     //response = new NodeStatusResponse(new NbtAddress(NbtAddress.UnknownName,
                     //    (int)addr.Address, false, 0x20));
                     response = new NodeStatusResponse(new NbtAddress(NbtAddress.UnknownName,
-                        BitConverter.ToInt32(addr.GetAddressBytes(), 0) , false, 0x20));
+                                                                     BitConverter.ToInt32(addr.GetAddressBytes(), 0),
+                                                                     false,
+                                                                     0x20));
 
-                    request = new NodeStatusRequest(new Name(NbtAddress.AnyHostsName, unchecked(0x20), null));
+                    request = new NodeStatusRequest(new Name(NbtAddress.AnyHostsName,
+                                                             unchecked(0x20),
+                                                             null));
                     request.Addr = addr;
                     Send(request, response, 0);
                 }
@@ -624,13 +638,13 @@ namespace SharpCifs.Netbios
                 }
                 throw new UnknownHostException(ioe);
             }
-            
+
             _autoResetWaitReceive = new AutoResetEvent(false);
-            _thread = new Thread(this); 
+            _thread = new Thread(this);
             _thread.SetDaemon(true);
             _thread.Start();
 
-            _autoResetWaitReceive.WaitOne();         
+            _autoResetWaitReceive.WaitOne();
 
             List<NbtAddress> result = new List<NbtAddress>();
 

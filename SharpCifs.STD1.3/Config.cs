@@ -137,7 +137,7 @@ namespace SharpCifs
 
         // supress javadoc constructor summary by removing 'protected'
         /// <summary>Set the default properties of the static Properties used by <tt>Config</tt>.
-        /// 	</summary>
+        /// </summary>
         /// <remarks>
         /// Set the default properties of the static Properties used by <tt>Config</tt>. This permits
         /// a different Properties object/file to be used as the source of properties for
@@ -222,7 +222,7 @@ namespace SharpCifs
 
         /// <summary>Retrieve a <code>String</code>.</summary>
         /// <remarks>Retrieve a <code>String</code>. If the property is not found, <code>null</code> is returned.
-        /// 	</remarks>
+        /// </remarks>
         public static string GetProperty(string key)
         {
             return (string)_prp.GetProperty(key);
@@ -256,7 +256,7 @@ namespace SharpCifs
 
         /// <summary>Retrieve an <code>int</code>.</summary>
         /// <remarks>Retrieve an <code>int</code>. If the property is not found, <code>-1</code> is returned.
-        /// 	</remarks>
+        /// </remarks>
         public static int GetInt(string key)
         {
             string s = (string)_prp.GetProperty(key);
@@ -354,7 +354,7 @@ namespace SharpCifs
 
         /// <summary>Retrieve a boolean value.</summary>
         /// <remarks>Retrieve a boolean value. If the property is not found, the value of <code>def</code> is returned.
-        /// 	</remarks>
+        /// </remarks>
         public static bool GetBoolean(string key, bool def)
         {
             string b = GetProperty(key);

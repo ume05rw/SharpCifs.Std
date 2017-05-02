@@ -41,39 +41,41 @@ namespace SharpCifs.Smb
 
         public static readonly IPAddress Laddr = Config.GetLocalHost();
 
-        public static readonly int Lport = Config.GetInt("jcifs.smb.client.lport", 0);
+        public static readonly int Lport
+            = Config.GetInt("jcifs.smb.client.lport", 0);
 
-        public static readonly int MaxMpxCount = Config.GetInt("jcifs.smb.client.maxMpxCount", DefaultMaxMpxCount
-            );
+        public static readonly int MaxMpxCount
+            = Config.GetInt("jcifs.smb.client.maxMpxCount", DefaultMaxMpxCount);
 
-        public static readonly int SndBufSize = Config.GetInt("jcifs.smb.client.snd_buf_size", DefaultSndBufSize
-            );
+        public static readonly int SndBufSize
+            = Config.GetInt("jcifs.smb.client.snd_buf_size", DefaultSndBufSize);
 
-        public static readonly int RcvBufSize = Config.GetInt("jcifs.smb.client.rcv_buf_size", DefaultRcvBufSize
-            );
+        public static readonly int RcvBufSize
+            = Config.GetInt("jcifs.smb.client.rcv_buf_size", DefaultRcvBufSize);
 
-        public static readonly bool UseUnicode = Config.GetBoolean("jcifs.smb.client.useUnicode",
-            true);
+        public static readonly bool UseUnicode
+            = Config.GetBoolean("jcifs.smb.client.useUnicode", true);
 
-        public static readonly bool ForceUnicode = Config.GetBoolean("jcifs.smb.client.useUnicode"
-            , false);
+        public static readonly bool ForceUnicode
+            = Config.GetBoolean("jcifs.smb.client.useUnicode", false);
 
-        public static readonly bool UseNtstatus = Config.GetBoolean("jcifs.smb.client.useNtStatus"
-            , true);
+        public static readonly bool UseNtstatus
+            = Config.GetBoolean("jcifs.smb.client.useNtStatus", true);
 
-        public static readonly bool Signpref = Config.GetBoolean("jcifs.smb.client.signingPreferred"
-            , false);
+        public static readonly bool Signpref
+            = Config.GetBoolean("jcifs.smb.client.signingPreferred", false);
 
-        public static readonly bool UseNtsmbs = Config.GetBoolean("jcifs.smb.client.useNTSmbs", true
-            );
+        public static readonly bool UseNtsmbs
+            = Config.GetBoolean("jcifs.smb.client.useNTSmbs", true);
 
-        public static readonly bool UseExtsec = Config.GetBoolean("jcifs.smb.client.useExtendedSecurity"
-            , true);
+        public static readonly bool UseExtsec
+            = Config.GetBoolean("jcifs.smb.client.useExtendedSecurity", true);
 
-        public static readonly string NetbiosHostname = Config.GetProperty("jcifs.netbios.hostname"
-            , null);
+        public static readonly string NetbiosHostname
+            = Config.GetProperty("jcifs.netbios.hostname", null);
 
-        public static readonly int LmCompatibility = Config.GetInt("jcifs.smb.lmCompatibility", 3);
+        public static readonly int LmCompatibility
+            = Config.GetInt("jcifs.smb.lmCompatibility", 3);
 
         public static readonly int FlagsNone = unchecked(0x00);
 
@@ -227,50 +229,68 @@ namespace SharpCifs.Smb
 
         public static readonly TimeZoneInfo Tz = TimeZoneInfo.Local;
 
-        public static readonly bool UseBatching = Config.GetBoolean("jcifs.smb.client.useBatching"
-            , true);
+        public static readonly bool UseBatching
+            = Config.GetBoolean("jcifs.smb.client.useBatching", true);
 
-        public static readonly string OemEncoding = Config.GetProperty("jcifs.encoding", Config.DefaultOemEncoding
-            );
+        public static readonly string OemEncoding
+            = Config.GetProperty("jcifs.encoding", Config.DefaultOemEncoding);
 
         public static readonly string UniEncoding = "UTF-16LE";
 
-        public static readonly int DefaultFlags2 = Flags2LongFilenames | Flags2ExtendedAttributes
-             | (UseExtsec ? Flags2ExtendedSecurityNegotiation : 0) | (Signpref ? Flags2SecuritySignatures
-             : 0) | (UseNtstatus ? Flags2Status32 : 0) | (UseUnicode ? Flags2Unicode : 0
-            );
+        public static readonly int DefaultFlags2 = Flags2LongFilenames
+                                                   | Flags2ExtendedAttributes
+                                                   | (UseExtsec
+                                                        ? Flags2ExtendedSecurityNegotiation
+                                                        : 0)
+                                                   | (Signpref
+                                                        ? Flags2SecuritySignatures
+                                                        : 0)
+                                                   | (UseNtstatus
+                                                        ? Flags2Status32
+                                                        : 0)
+                                                   | (UseUnicode
+                                                        ? Flags2Unicode
+                                                        : 0);
 
-        public static readonly int DefaultCapabilities = (UseNtsmbs ? CapNtSmbs : 0) | (UseNtstatus
-             ? CapStatus32 : 0) | (UseUnicode ? CapUnicode : 0) | CapDfs;
+        public static readonly int DefaultCapabilities = (UseNtsmbs
+                                                            ? CapNtSmbs
+                                                            : 0)
+                                                         | (UseNtstatus
+                                                            ? CapStatus32
+                                                            : 0)
+                                                         | (UseUnicode
+                                                            ? CapUnicode
+                                                            : 0)
+                                                         | CapDfs;
 
-        public static readonly int Flags2 = Config.GetInt("jcifs.smb.client.flags2", DefaultFlags2
-            );
+        public static readonly int Flags2
+            = Config.GetInt("jcifs.smb.client.flags2", DefaultFlags2);
 
-        public static readonly int Capabilities = Config.GetInt("jcifs.smb.client.capabilities", DefaultCapabilities
-            );
+        public static readonly int Capabilities
+            = Config.GetInt("jcifs.smb.client.capabilities", DefaultCapabilities);
 
-        public static readonly bool TcpNodelay = Config.GetBoolean("jcifs.smb.client.tcpNoDelay",
-            false);
+        public static readonly bool TcpNodelay
+            = Config.GetBoolean("jcifs.smb.client.tcpNoDelay", false);
 
-        public static readonly int ResponseTimeout = Config.GetInt("jcifs.smb.client.responseTimeout"
-            , DefaultResponseTimeout);
+        public static readonly int ResponseTimeout
+            = Config.GetInt("jcifs.smb.client.responseTimeout", DefaultResponseTimeout);
 
         public static readonly List<SmbTransport> Connections = new List<SmbTransport>();
 
-        public static readonly int SsnLimit = Config.GetInt("jcifs.smb.client.ssnLimit", DefaultSsnLimit
-            );
+        public static readonly int SsnLimit
+            = Config.GetInt("jcifs.smb.client.ssnLimit", DefaultSsnLimit);
 
-        public static readonly int SoTimeout = Config.GetInt("jcifs.smb.client.soTimeout", DefaultSoTimeout
-            );
+        public static readonly int SoTimeout
+            = Config.GetInt("jcifs.smb.client.soTimeout", DefaultSoTimeout);
 
-        public static readonly int ConnTimeout = Config.GetInt("jcifs.smb.client.connTimeout", DefaultConnTimeout
-            );
+        public static readonly int ConnTimeout
+            = Config.GetInt("jcifs.smb.client.connTimeout", DefaultConnTimeout);
 
-        public static readonly string NativeOs = Config.GetProperty("jcifs.smb.client.nativeOs", Runtime
-            .GetProperty("os.name"));
+        public static readonly string NativeOs
+            = Config.GetProperty("jcifs.smb.client.nativeOs", Runtime.GetProperty("os.name"));
 
-        public static readonly string NativeLanman = Config.GetProperty("jcifs.smb.client.nativeLanMan"
-            , "jCIFS");
+        public static readonly string NativeLanman
+            = Config.GetProperty("jcifs.smb.client.nativeLanMan", "jCIFS");
 
         public static readonly int VcNumber = 1;
 

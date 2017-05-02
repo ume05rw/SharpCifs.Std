@@ -6,7 +6,7 @@ namespace SharpCifs.Util.Sharpen
     public class Hashtable : Dictionary<object, object>
     {
         public void Put(object key, object value)
-        {            
+        {
             Add(key, value);
         }
 

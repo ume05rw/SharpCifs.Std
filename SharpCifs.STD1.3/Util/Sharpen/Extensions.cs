@@ -124,10 +124,9 @@ namespace SharpCifs.Util.Sharpen
 
         public static Encoding GetEncoding(string name)
         {
-            //			Encoding e = Encoding.GetEncoding (name, EncoderFallback.ExceptionFallback, DecoderFallback.ExceptionFallback);
+            //Encoding e = Encoding.GetEncoding (name, EncoderFallback.ExceptionFallback, DecoderFallback.ExceptionFallback);
             try
             {
-
                 Encoding e = Encoding.GetEncoding(name.Replace('_', '-'));
                 if (e is UTF8Encoding)
                     return new UTF8Encoding(false, true);
@@ -214,7 +213,7 @@ namespace SharpCifs.Util.Sharpen
             string str2 = type.GetTypeInfo().Assembly.GetName().Name + ".resources";
             string[] textArray1 = { str2, ".", type.Namespace, ".", name };
             string str = string.Concat(textArray1);
-            
+
             //Type.`Assembly` property deleted
             //Stream manifestResourceStream = type.Assembly.GetManifestResourceStream(str);
             Stream manifestResourceStream = type.GetTypeInfo().Assembly.GetManifestResourceStream(str);
@@ -263,7 +262,7 @@ namespace SharpCifs.Util.Sharpen
         public static Iterator<T> Iterator<T>(this IEnumerable<T> col)
         {
             return new EnumeratorWrapper<T>(col, col.GetEnumerator());
-        } 
+        }
 
         public static T Last<T>(this ICollection<T> col)
         {
@@ -299,7 +298,8 @@ namespace SharpCifs.Util.Sharpen
         }
 
 
-        public static DateTimeOffset MillisToDateTimeOffset(long milliSecondsSinceEpoch, long offsetMinutes)
+        public static DateTimeOffset MillisToDateTimeOffset(long milliSecondsSinceEpoch,
+                                                            long offsetMinutes)
         {
             TimeSpan offset = TimeSpan.FromMinutes(offsetMinutes);
             long num = EpochTicks + (milliSecondsSinceEpoch * 10000);
@@ -390,7 +390,13 @@ namespace SharpCifs.Util.Sharpen
             return rgx.Replace(str, replacement);
         }
 
-        public static bool RegionMatches(this string str, bool ignoreCase, int toOffset, string other, int ooffset, int len)
+        public static bool RegionMatches(this
+                                         string str,
+                                         bool ignoreCase,
+                                         int toOffset,
+                                         string other,
+                                         int ooffset,
+                                         int len)
         {
             if (toOffset < 0 || ooffset < 0 || toOffset + len > str.Length || ooffset + len > other.Length)
                 return false;
@@ -516,14 +522,19 @@ namespace SharpCifs.Util.Sharpen
         {
             if (dateTime.Kind != DateTimeKind.Utc)
             {
-                throw new ArgumentException("dateTime is expected to be expressed as a UTC DateTime", "dateTime");
+                throw new ArgumentException(
+                    "dateTime is expected to be expressed as a UTC DateTime", "dateTime");
             }
-            return new DateTimeOffset(DateTime.SpecifyKind(dateTime, DateTimeKind.Utc), TimeSpan.Zero).ToMillisecondsSinceEpoch();
+            return new DateTimeOffset(DateTime.SpecifyKind(dateTime, DateTimeKind.Utc), 
+                                      TimeSpan.Zero).ToMillisecondsSinceEpoch();
         }
 
         public static long ToMillisecondsSinceEpoch(this DateTimeOffset dateTimeOffset)
         {
-            return (((dateTimeOffset.Ticks - dateTimeOffset.Offset.Ticks) - EpochTicks) / TimeSpan.TicksPerMillisecond);
+            return (
+                       ((dateTimeOffset.Ticks - dateTimeOffset.Offset.Ticks) - EpochTicks) 
+                       / TimeSpan.TicksPerMillisecond
+                   );
         }
 
         public static string ToOctalString(int val)
@@ -615,8 +626,8 @@ namespace SharpCifs.Util.Sharpen
             if (host == "0.0.0.0")
             {
                 return IPAddress.Any;
-            }                
-            
+            }
+
             try
             {
                 return IPAddress.Parse(host);
@@ -624,7 +635,7 @@ namespace SharpCifs.Util.Sharpen
             catch (Exception ex)
             {
                 return null;
-            }            
+            }
         }
 
         public static IPAddress[] GetAddressesByName(string host)
@@ -696,14 +707,16 @@ namespace SharpCifs.Util.Sharpen
         }
 
 
-        /*public static bool RemoveElement(this ArrayList list, object elem)
+        /*
+        public static bool RemoveElement(this ArrayList list, object elem)
         {
             int i = list.IndexOf(elem);
             if (i == -1)
                 return false;
             list.RemoveAt(i);
             return true;
-        }*/
+        }
+        */
 
         public static Semaphore CreateSemaphore(int count)
         {
