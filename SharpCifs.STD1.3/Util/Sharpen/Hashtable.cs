@@ -7,14 +7,17 @@ namespace SharpCifs.Util.Sharpen
     {
         public void Put(object key, object value)
         {
-            Add(key, value);
+            if (this.ContainsKey(key))
+                this[key] = value;
+            else
+                this.Add(key, value);
         }
 
         public object Get(object key)
         {
-            var m_key = Keys.SingleOrDefault(k => k.Equals(key));
-
-            return m_key != null ? this[m_key] : null;
+            return this.ContainsKey(key) 
+                ? this[key] 
+                : null;
         }
     }
 }

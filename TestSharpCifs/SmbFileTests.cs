@@ -15,15 +15,22 @@ namespace TestSharpCifs
     public class SmbFileTests : TestBase
     {
         private DateTime EpocDate = new DateTime(1970, 1, 1, 0, 0, 0, DateTimeKind.Utc);
+
+        private string ServerName { get; set; }
         private string UserName { get; set; }
         private string Password { get; set; }
-        private string ServerName { get; set; }
 
+        /// <summary>
+        /// コンストラクタ
+        /// </summary>
         public SmbFileTests()
         {
-            this.UserName = "XXXX";
-            this.Password = "XXXX";
-            this.ServerName = "XXXX";
+            if (Secrets.HasSecrets)
+            {
+                this.ServerName = Secrets.Get("ServerName");
+                this.UserName = Secrets.Get("UserName");
+                this.Password = Secrets.Get("Password");
+            }
         }
 
         private string GetUriString(string path)
@@ -34,14 +41,14 @@ namespace TestSharpCifs
         [TestMethod()]
         public void ConnectTest()
         {
-            var file = new SmbFile(this.GetUriString("Apps/tmp/test.txt"));
+            var file = new SmbFile(this.GetUriString("FreeArea/SharpCifsTest/test.txt"));
             Assert.IsTrue(file.Exists());
         }
 
         [TestMethod()]
         public void StreamReadTest()
         {
-            var file = new SmbFile(this.GetUriString("Apps/tmp/test.txt"));
+            var file = new SmbFile(this.GetUriString("FreeArea/SharpCifsTest/test.txt"));
             Assert.IsTrue(file.Exists());
 
             var readStream = file.GetInputStream();
@@ -62,7 +69,7 @@ namespace TestSharpCifs
         {
             var a = 1;
 
-            var dir = new SmbFile(this.GetUriString("Apps/tmp/"));
+            var dir = new SmbFile(this.GetUriString("FreeArea/SharpCifsTest/"));
             Assert.IsTrue(dir.Exists());
 
             var file2 = new SmbFile(dir, "newFile.txt");
@@ -98,7 +105,7 @@ namespace TestSharpCifs
             var a = 1;
 
             var baseDate = new DateTime(1970, 1, 1, 0, 0, 0, DateTimeKind.Utc);
-            var dir = new SmbFile(this.GetUriString("Apps/tmp/"));
+            var dir = new SmbFile(this.GetUriString("FreeArea/SharpCifsTest/"));
             Assert.IsTrue(dir.Exists());
 
             var list = dir.ListFiles();
@@ -124,7 +131,7 @@ namespace TestSharpCifs
             SharpCifs.Config.SetProperties(props);
 
 
-            var uriString = $"smb://{this.ServerName}/Apps/Others/";
+            var uriString = $"smb://{this.ServerName}/FreeArea/SharpCifsTest/";
             var dir = new SmbFile(uriString);
             Assert.IsTrue(dir.Exists());
 
