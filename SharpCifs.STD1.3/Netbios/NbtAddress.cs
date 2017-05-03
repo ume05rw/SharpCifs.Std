@@ -18,6 +18,7 @@ using System;
 using System.Linq;
 using System.Net;
 using SharpCifs.Util;
+using SharpCifs.Util.DbsHelper;
 using SharpCifs.Util.Sharpen;
 using Extensions = SharpCifs.Util.Sharpen.Extensions;
 
@@ -414,6 +415,7 @@ namespace SharpCifs.Netbios
 
         public static NbtAddress[] GetHosts()
         {
+            Log.Out("NbtAddress.GetHosts");
             return new NameServiceClient().GetHosts();
         }
 

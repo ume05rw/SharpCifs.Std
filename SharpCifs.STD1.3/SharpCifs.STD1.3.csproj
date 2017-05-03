@@ -195,6 +195,7 @@
     <Compile Include="Smb\WinError.cs" />
     <Compile Include="UniAddress.cs" />
     <Compile Include="Util\Base64.cs" />
+    <Compile Include="Util\DbsHelper\Log.cs" />
     <Compile Include="Util\DES.cs" />
     <Compile Include="Util\Encdec.cs" />
     <Compile Include="Util\Hexdump.cs" />

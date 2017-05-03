@@ -22,6 +22,7 @@ using System.Net.Sockets;
 using System.Linq;
 using System.Threading;
 using SharpCifs.Util;
+using SharpCifs.Util.DbsHelper;
 using SharpCifs.Util.Sharpen;
 
 using Thread = SharpCifs.Util.Sharpen.Thread;
@@ -596,6 +597,7 @@ namespace SharpCifs.Netbios
 
         internal virtual NbtAddress[] GetHosts()
         {
+            Log.Out("NbtServiceClient.GetHosts");
             try
             {
                 _waitResponse = false;
@@ -616,23 +618,26 @@ namespace SharpCifs.Netbios
 
                     IPAddress addr = new IPAddress(addrBytes);
 
-                    //response = new NodeStatusResponse(new NbtAddress(NbtAddress.UnknownName,
-                    //    (int)addr.Address, false, 0x20));
-                    response = new NodeStatusResponse(new NbtAddress(NbtAddress.UnknownName,
-                                                                     BitConverter.ToInt32(addr.GetAddressBytes(), 0),
-                                                                     false,
-                                                                     0x20));
+                    response = new NodeStatusResponse(
+                        new NbtAddress(NbtAddress.UnknownName,
+                                       BitConverter.ToInt32(addr.GetAddressBytes(), 0),
+                                       false,
+                                       0x20)
+                    );
 
                     request = new NodeStatusRequest(new Name(NbtAddress.AnyHostsName,
-                                                             unchecked(0x20),
-                                                             null));
-                    request.Addr = addr;
+                                                    unchecked(0x20),
+                                                    null))
+                    {
+                        Addr = addr
+                    };
                     Send(request, response, 0);
                 }
-
             }
             catch (IOException ioe)
             {
+                Log.Out(ioe);
+
                 if (_log.Level > 1)
                 {
                     Runtime.PrintStackTrace(ioe, _log);
@@ -647,22 +652,17 @@ namespace SharpCifs.Netbios
 
             _autoResetWaitReceive.WaitOne();
 
-            List<NbtAddress> result = new List<NbtAddress>();
+            var result = new List<NbtAddress>();
 
             foreach (var key in _responseTable.Keys)
             {
-                NodeStatusResponse resp = (NodeStatusResponse)_responseTable[key];
+                var resp = (NodeStatusResponse)_responseTable[key];
 
-                if (resp.Received && resp.ResultCode == 0)
-                {
-                    foreach (var entry in resp.AddressArray)
-                    {
-                        if (entry.HostName.HexCode == 0x20)
-                        {
-                            result.Add(entry);
-                        }
-                    }
-                }
+                if (!resp.Received || resp.ResultCode != 0)
+                    continue;
+
+                result.AddRange(resp.AddressArray
+                                    .Where(entry => entry.HostName.HexCode == 0x20));
             }
 
             _responseTable.Clear();
