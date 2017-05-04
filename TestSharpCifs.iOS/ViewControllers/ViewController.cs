@@ -31,12 +31,9 @@ namespace TestSharpCifs.iOS.ViewControllers
             {
                 try
                 {
-                    var hosts = NbtAddress.GetHosts();
-
-                    foreach (var nbtAddress in hosts)
-                    {
-                        Xb.Util.Out(nbtAddress.GetInetAddress().ToString());
-                    }
+                    var nname = NbtAddress.GetByName("ume01srv");
+                    var addrs = nname.GetInetAddress();
+                    Xb.Util.Out($"{addrs}");
                 }
                 catch (Exception ex)
                 {

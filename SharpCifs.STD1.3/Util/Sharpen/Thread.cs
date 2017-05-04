@@ -209,6 +209,10 @@ namespace SharpCifs.Util.Sharpen
                 finally
                 {
                     _tgroup.Remove(this);
+
+
+                    this._canceller.Dispose();
+                    this._canceller = null;
                 }
             }, this._canceller.Token);
         }

@@ -165,7 +165,7 @@ namespace SharpCifs.Netbios
             unchecked(unchecked(0x00)) 
         };
 
-        internal sealed class CacheEntry
+        private sealed class CacheEntry
         {
             internal Name HostName;
 
@@ -181,7 +181,7 @@ namespace SharpCifs.Netbios
             }
         }
 
-        internal static NbtAddress Localhost;
+        private static NbtAddress Localhost;
 
         static NbtAddress()
         {
@@ -234,7 +234,7 @@ namespace SharpCifs.Netbios
             CacheAddress(localName, Localhost, Forever);
         }
 
-        internal static void CacheAddress(Name hostName, NbtAddress addr)
+        private static void CacheAddress(Name hostName, NbtAddress addr)
         {
             if (CachePolicy == 0)
             {
@@ -248,7 +248,7 @@ namespace SharpCifs.Netbios
             CacheAddress(hostName, addr, expiration);
         }
 
-        internal static void CacheAddress(Name hostName, NbtAddress addr, long expiration)
+        private static void CacheAddress(Name hostName, NbtAddress addr, long expiration)
         {
             if (CachePolicy == 0)
             {
@@ -270,7 +270,7 @@ namespace SharpCifs.Netbios
             }
         }
 
-        internal static void CacheAddressArray(NbtAddress[] addrs)
+        private static void CacheAddressArray(NbtAddress[] addrs)
         {
             if (CachePolicy == 0)
             {
@@ -300,7 +300,7 @@ namespace SharpCifs.Netbios
             }
         }
 
-        internal static NbtAddress GetCachedAddress(Name hostName)
+        private static NbtAddress GetCachedAddress(Name hostName)
         {
             if (CachePolicy == 0)
             {
@@ -322,7 +322,7 @@ namespace SharpCifs.Netbios
         }
 
         /// <exception cref="UnknownHostException"></exception>
-        internal static NbtAddress DoNameQuery(Name name, IPAddress svr)
+        private static NbtAddress DoNameQuery(Name name, IPAddress svr)
         {
             NbtAddress addr;
             if (name.HexCode == unchecked(0x1d) && svr == null)
@@ -401,6 +401,8 @@ namespace SharpCifs.Netbios
                 Runtime.NotifyAll(LookupTable);
             }
         }
+
+
 
         /// <summary>Retrieves the local host address.</summary>
         /// <remarks>Retrieves the local host address.</remarks>

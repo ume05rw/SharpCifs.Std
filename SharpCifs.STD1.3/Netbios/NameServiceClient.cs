@@ -21,6 +21,7 @@ using System.Net;
 using System.Net.Sockets;
 using System.Linq;
 using System.Threading;
+using SharpCifs.Smb;
 using SharpCifs.Util;
 using SharpCifs.Util.DbsHelper;
 using SharpCifs.Util.Sharpen;
@@ -85,7 +86,9 @@ namespace SharpCifs.Netbios
 
         private byte[] _rcvBuf;
 
-        private SocketEx _socket;
+        private SocketEx _socketSender;
+
+        private SocketEx _socketReciever;
 
         private Hashtable _responseTable = new Hashtable();
 
@@ -217,15 +220,24 @@ namespace SharpCifs.Netbios
             {
                 _closeTimeout = Math.Max(SoTimeout, timeout);
             }
+
+
+            var reqPort = (SmbConstants.Lport == 0) ? _lport : SmbConstants.Lport;
+
             // If socket is still good, the new closeTimeout will
             // be ignored; see tryClose comment.
-            if (_socket == null)
+            if (_socketSender == null)
             {
-                _socket = new SocketEx(AddressFamily.InterNetwork, SocketType.Dgram, ProtocolType.Udp);
+                _socketSender = new SocketEx(AddressFamily.InterNetwork, SocketType.Dgram, ProtocolType.Udp);
 
-                //IPAddress.`Address` property deleted
-                //_socket.Bind(new IPEndPoint(laddr.Address, _lport));
-                _socket.Bind(new IPEndPoint(laddr, _lport));
+                
+                _socketSender.Bind(new IPEndPoint(laddr, reqPort));
+            }
+
+            if (_socketReciever == null)
+            {
+                _socketReciever = new SocketEx(AddressFamily.InterNetwork, SocketType.Dgram, ProtocolType.Udp);
+                _socketReciever.Bind(new IPEndPoint(IPAddress.Any, reqPort));
 
                 if (_waitResponse)
                 {
@@ -240,13 +252,18 @@ namespace SharpCifs.Netbios
         {
             lock (_lock)
             {
-                if (_socket != null)
+                if (_socketSender != null)
                 {
-                    //Socket.`Close` method deleted
-                    //_socket.Close();
-                    _socket.Dispose();
-                    _socket = null;
+                    _socketSender.Dispose();
+                    _socketSender = null;
                 }
+
+                if (_socketReciever != null)
+                {
+                    _socketReciever.Dispose();
+                    _socketReciever = null;
+                }
+
                 _thread = null;
 
                 if (_waitResponse)
@@ -267,13 +284,11 @@ namespace SharpCifs.Netbios
 
             try
             {
-
-                //while (_thread == Thread.CurrentThread())
                 while (Thread.CurrentThread().Equals(_thread))
                 {
-                    _socket.SoTimeOut = _closeTimeout;
+                    _socketReciever.SoTimeOut = _closeTimeout;
 
-                    int len = _socket.Receive(_rcvBuf, 0, RcvBufSize);
+                    int len = _socketReciever.Receive(_rcvBuf, 0, RcvBufSize);
 
                     if (_log.Level > 3)
                     {
@@ -306,7 +321,6 @@ namespace SharpCifs.Netbios
                         }
                     }
                 }
-
             }
             catch (TimeoutException) { }
             catch (Exception ex)
@@ -336,7 +350,6 @@ namespace SharpCifs.Netbios
 
             lock (response)
             {
-
                 while (max-- > 0)
                 {
                     try
@@ -345,20 +358,33 @@ namespace SharpCifs.Netbios
                         {
                             request.NameTrnId = GetNextNameTrnId();
                             nid = request.NameTrnId;
+
                             response.Received = false;
                             _responseTable.Put(nid, response);
+
                             EnsureOpen(timeout + 1000);
+
                             int requestLenght = request.WriteWireFormat(_sndBuf, 0);
-                            _socket.Send(_sndBuf,
-                                         0,
-                                         requestLenght,
-                                         new IPEndPoint(request.Addr, _lport));
+
+                            _socketSender.SetSocketOption(SocketOptionLevel.Socket,
+                                                          SocketOptionName.Broadcast,
+                                                          request.IsBroadcast
+                                                            ? 1
+                                                            : 0);
+
+                            _socketSender.Send(_sndBuf,
+                                               0,
+                                               requestLenght,
+                                               new IPEndPoint(request.Addr, _lport));
+
+                            _socketSender.Dispose();
+                            _socketSender = null;
+
                             if (_log.Level > 3)
                             {
                                 _log.WriteLine(request);
                                 Hexdump.ToHexdump(_log, _sndBuf, 0, requestLenght);
                             }
-
                         }
                         if (_waitResponse)
                         {
@@ -414,6 +440,7 @@ namespace SharpCifs.Netbios
             NameQueryResponse response = new NameQueryResponse();
             request.Addr = addr ?? NbtAddress.GetWinsAddress();
             request.IsBroadcast = request.Addr == null;
+
             if (request.IsBroadcast)
             {
                 request.Addr = Baddr;
@@ -451,9 +478,9 @@ namespace SharpCifs.Netbios
         internal virtual NbtAddress GetByName(Name name, IPAddress addr)
         {
             int n;
-
             NameQueryRequest request = new NameQueryRequest(name);
             NameQueryResponse response = new NameQueryResponse();
+
             if (addr != null)
             {
                 request.Addr = addr;

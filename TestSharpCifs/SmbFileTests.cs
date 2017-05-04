@@ -196,17 +196,18 @@ namespace TestSharpCifs
             }
         }
 
-        //[TestMethod()]
-        //public void LanScanTest()
-        //{
-        //    //Config.GetInt("jcifs.netbios.lport", 137)
-        //    SharpCifs.Config.SetProperty("jcifs.netbios.lport", "8137");
+        [TestMethod()]
+        public void GetByNameTest()
+        {
+            //ローカルポートと共に、宛先ポートを変更してしまう。
+            //SharpCifs.Config.SetProperty("jcifs.netbios.lport", "2137");
 
-        //    var hosts = NbtAddress.GetHosts();
-        //    foreach (var nbtAddress in hosts)
-        //    {
-        //        Xb.Util.Out(nbtAddress.GetInetAddress().ToString());
-        //    }
-        //}
+            //ローカルポートのみを変更する。ウェルノウンポートは管理者権限が必要なので。
+            SharpCifs.Config.SetProperty("jcifs.smb.client.lport", "2137");
+
+            var nname = NbtAddress.GetByName("ume01srv");
+            var addrs = nname.GetInetAddress();
+            this.Out($"{addrs}");
+        }
     }
 }

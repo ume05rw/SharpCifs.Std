@@ -72,7 +72,7 @@ namespace SharpCifs
             IPAddress nbns = NbtAddress.GetWinsAddress();
             try
             {
-                _baddr = Config.GetInetAddress("jcifs.netbios.baddr", 
+                _baddr = Config.GetInetAddress("jcifs.netbios.baddr",
                                                Extensions.GetAddressByName("255.255.255.255"));
             }
             catch (UnknownHostException)
