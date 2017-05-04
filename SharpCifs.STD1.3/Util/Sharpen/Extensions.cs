@@ -11,6 +11,7 @@ using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading;
 using System.Threading.Tasks;
+
 //using Windows.Networking;
 //using Windows.Networking.Sockets;
 
@@ -71,7 +72,7 @@ namespace SharpCifs.Util.Sharpen
 
         public static int BitCount(int val)
         {
-            uint num = (uint)val;
+            uint num = (uint) val;
             int count = 0;
             for (int i = 0; i < 32; i++)
             {
@@ -203,7 +204,7 @@ namespace SharpCifs.Util.Sharpen
 
         public static int GetOffset(this TimeZoneInfo tzone, long date)
         {
-            return (int)tzone.GetUtcOffset(MillisToDateTimeOffset(date, 0).DateTime).TotalMilliseconds;
+            return (int) tzone.GetUtcOffset(MillisToDateTimeOffset(date, 0).DateTime).TotalMilliseconds;
         }
 
         public static InputStream GetResourceAsStream(this Type type, string name)
@@ -211,7 +212,7 @@ namespace SharpCifs.Util.Sharpen
             //Type.`Assembly` property deleted
             //string str2 = type.Assembly.GetName().Name + ".resources";
             string str2 = type.GetTypeInfo().Assembly.GetName().Name + ".resources";
-            string[] textArray1 = { str2, ".", type.Namespace, ".", name };
+            string[] textArray1 = {str2, ".", type.Namespace, ".", name};
             string str = string.Concat(textArray1);
 
             //Type.`Assembly` property deleted
@@ -226,7 +227,9 @@ namespace SharpCifs.Util.Sharpen
 
         public static long GetTime(this DateTime dateTime)
         {
-            return new DateTimeOffset(DateTime.SpecifyKind(dateTime, DateTimeKind.Utc), TimeSpan.Zero).ToMillisecondsSinceEpoch();
+            return
+                new DateTimeOffset(DateTime.SpecifyKind(dateTime, DateTimeKind.Utc), TimeSpan.Zero)
+                    .ToMillisecondsSinceEpoch();
         }
 
         public static void InitCause(this Exception ex, Exception cause)
@@ -287,28 +290,28 @@ namespace SharpCifs.Util.Sharpen
 
         public static DateTime CreateDate(long milliSecondsSinceEpoch)
         {
-            long num = EpochTicks + (milliSecondsSinceEpoch * 10000);
+            long num = EpochTicks + (milliSecondsSinceEpoch*10000);
             return new DateTime(num);
         }
 
         public static DateTime CreateDateFromUTC(long milliSecondsSinceEpoch)
         {
-            long num = EpochTicks + (milliSecondsSinceEpoch * 10000);
+            long num = EpochTicks + (milliSecondsSinceEpoch*10000);
             return new DateTime(num, DateTimeKind.Utc);
         }
 
 
         public static DateTimeOffset MillisToDateTimeOffset(long milliSecondsSinceEpoch,
-                                                            long offsetMinutes)
+            long offsetMinutes)
         {
             TimeSpan offset = TimeSpan.FromMinutes(offsetMinutes);
-            long num = EpochTicks + (milliSecondsSinceEpoch * 10000);
+            long num = EpochTicks + (milliSecondsSinceEpoch*10000);
             return new DateTimeOffset(num + offset.Ticks, offset);
         }
 
         public static int NumberOfLeadingZeros(int val)
         {
-            uint num = (uint)val;
+            uint num = (uint) val;
             int count = 0;
             while ((num & 0x80000000) == 0)
             {
@@ -320,7 +323,7 @@ namespace SharpCifs.Util.Sharpen
 
         public static int NumberOfTrailingZeros(int val)
         {
-            uint num = (uint)val;
+            uint num = (uint) val;
             int count = 0;
             while ((num & 1) == 0)
             {
@@ -371,7 +374,7 @@ namespace SharpCifs.Util.Sharpen
         {
             Regex rgx = new Regex(regex);
 
-            if (replacement.IndexOfAny(new[] { '\\', '$' }) != -1)
+            if (replacement.IndexOfAny(new[] {'\\', '$'}) != -1)
             {
                 // Back references not yet supported
                 StringBuilder sb = new StringBuilder();
@@ -391,12 +394,12 @@ namespace SharpCifs.Util.Sharpen
         }
 
         public static bool RegionMatches(this
-                                         string str,
-                                         bool ignoreCase,
-                                         int toOffset,
-                                         string other,
-                                         int ooffset,
-                                         int len)
+                string str,
+            bool ignoreCase,
+            int toOffset,
+            string other,
+            int ooffset,
+            int len)
         {
             if (toOffset < 0 || ooffset < 0 || toOffset + len > str.Length || ooffset + len > other.Length)
                 return false;
@@ -525,16 +528,16 @@ namespace SharpCifs.Util.Sharpen
                 throw new ArgumentException(
                     "dateTime is expected to be expressed as a UTC DateTime", "dateTime");
             }
-            return new DateTimeOffset(DateTime.SpecifyKind(dateTime, DateTimeKind.Utc), 
-                                      TimeSpan.Zero).ToMillisecondsSinceEpoch();
+            return new DateTimeOffset(DateTime.SpecifyKind(dateTime, DateTimeKind.Utc),
+                TimeSpan.Zero).ToMillisecondsSinceEpoch();
         }
 
         public static long ToMillisecondsSinceEpoch(this DateTimeOffset dateTimeOffset)
         {
             return (
-                       ((dateTimeOffset.Ticks - dateTimeOffset.Offset.Ticks) - EpochTicks) 
-                       / TimeSpan.TicksPerMillisecond
-                   );
+                ((dateTimeOffset.Ticks - dateTimeOffset.Offset.Ticks) - EpochTicks)
+                /TimeSpan.TicksPerMillisecond
+            );
         }
 
         public static string ToOctalString(int val)
@@ -661,14 +664,20 @@ namespace SharpCifs.Util.Sharpen
             //          .ToArray() 
             //    : null;
 
-            //get v4-address only
-            var entry = Task.Run(() => System.Net.Dns.GetHostEntryAsync(host))
-                            .GetAwaiter()
-                            .GetResult();
-            return entry.AddressList
-                        .Where(addr => addr.AddressFamily == AddressFamily.InterNetwork)
-                        .ToArray();
-
+            try
+            {
+                //get v4-address only
+                var entry = Task.Run(() => System.Net.Dns.GetHostEntryAsync(host))
+                                .GetAwaiter()
+                                .GetResult();
+                return entry.AddressList
+                            .Where(addr => addr.AddressFamily == AddressFamily.InterNetwork)
+                            .ToArray();
+            }
+            catch (Exception)
+            {
+                return null;
+            }
         }
 
         public static string GetImplementationVersion(this Assembly asm)

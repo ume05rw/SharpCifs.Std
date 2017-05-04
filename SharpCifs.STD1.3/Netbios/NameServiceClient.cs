@@ -228,9 +228,10 @@ namespace SharpCifs.Netbios
             // be ignored; see tryClose comment.
             if (_socketSender == null)
             {
-                _socketSender = new SocketEx(AddressFamily.InterNetwork, SocketType.Dgram, ProtocolType.Udp);
+                _socketSender = new SocketEx(AddressFamily.InterNetwork, 
+                                             SocketType.Dgram, 
+                                             ProtocolType.Udp);
 
-                
                 _socketSender.Bind(new IPEndPoint(laddr, reqPort));
             }
 
@@ -238,10 +239,10 @@ namespace SharpCifs.Netbios
             {
                 _socketReciever = new SocketEx(AddressFamily.InterNetwork, SocketType.Dgram, ProtocolType.Udp);
                 _socketReciever.Bind(new IPEndPoint(IPAddress.Any, reqPort));
-
+                
                 if (_waitResponse)
                 {
-                    _thread = new Thread(this); //new Sharpen.Thread(this, "JCIFS-NameServiceClient");
+                    _thread = new Thread(this);
                     _thread.SetDaemon(true);
                     _thread.Start();
                 }
@@ -439,7 +440,8 @@ namespace SharpCifs.Netbios
             NameQueryRequest request = new NameQueryRequest(name);
             NameQueryResponse response = new NameQueryResponse();
             request.Addr = addr ?? NbtAddress.GetWinsAddress();
-            request.IsBroadcast = request.Addr == null;
+            request.IsBroadcast = (request.Addr == null
+                                    || request.Addr.ToString() == Baddr.ToString());
 
             if (request.IsBroadcast)
             {

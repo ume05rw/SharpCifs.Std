@@ -112,12 +112,13 @@ namespace TestSharpCifs
             foreach (var file in list)
             {
                 var name = file.GetName();
-                Assert.IsTrue((new string[]{ "taihi.7z", "test.txt", "win10スタートメニュー.txt" }).Contains(name));
+                Assert.IsTrue((new string[] {"taihi.7z", "test.txt", "win10スタートメニュー.txt"}).Contains(name));
 
                 var time = file.LastModified();
                 var dateteime = baseDate.AddMilliseconds(time).ToLocalTime();
 
-                this.Out($"Name: {file.GetName()}, isDir?: {file.IsDirectory()}, Date: {dateteime.ToString("yyyy-MM-dd HH:mm:ss")}"); 
+                this.Out(
+                    $"Name: {file.GetName()}, isDir?: {file.IsDirectory()}, Date: {dateteime.ToString("yyyy-MM-dd HH:mm:ss")}");
             }
         }
 
@@ -144,7 +145,8 @@ namespace TestSharpCifs
                 var time = file.LastModified();
                 var dateteime = EpocDate.AddMilliseconds(time).ToLocalTime();
 
-                this.Out($"Name: {file.GetName()}, isDir?: {file.IsDirectory()}, Date: {dateteime.ToString("yyyy-MM-dd HH:mm:ss")}");
+                this.Out(
+                    $"Name: {file.GetName()}, isDir?: {file.IsDirectory()}, Date: {dateteime.ToString("yyyy-MM-dd HH:mm:ss")}");
             }
         }
 
@@ -168,7 +170,8 @@ namespace TestSharpCifs
                 var time = file.LastModified();
                 var dateteime = EpocDate.AddMilliseconds(time).ToLocalTime();
 
-                this.Out($"Name: {file.GetName()}, isDir?: {file.IsDirectory()}, Date: {dateteime.ToString("yyyy-MM-dd HH:mm:ss")}");
+                this.Out(
+                    $"Name: {file.GetName()}, isDir?: {file.IsDirectory()}, Date: {dateteime.ToString("yyyy-MM-dd HH:mm:ss")}");
             }
         }
 
@@ -183,7 +186,7 @@ namespace TestSharpCifs
             Assert.IsTrue(zipFile.Exists());
 
             var readStream = zipFile.GetInputStream();
-            
+
 
             var xbZip = new Xb.File.Zip(readStream);
 
@@ -258,6 +261,65 @@ namespace TestSharpCifs
                 var addrs = nname.GetInetAddress();
                 this.Out($"{nname.GetHostName()} = {addrs}");
             }
+        }
+
+        [TestMethod()]
+        public void LocalScanTest()
+        {
+            //ローカルポートと共に、宛先ポートを変更してしまう。
+            //SharpCifs.Config.SetProperty("jcifs.netbios.lport", "2137");
+
+            //ローカルポートのみを変更する。ウェルノウンポートは管理者権限が必要なので。
+            SharpCifs.Config.SetProperty("jcifs.smb.client.lport", "2137");
+
+            var file = new SmbFile("smb://", "");
+            var exists = file.Exists();
+
+            var list1 = file.List();
+            var listFiles = file.ListFiles();
+            var file2 = listFiles[0];
+            var exists2 = listFiles[0].Exists();
+
+            var list2 = file2.ListFiles();
+            foreach (var smbFile in list2)
+            {
+                this.Out($"Server: {smbFile.GetName()}");
+
+                try
+                {
+                    var shares = smbFile.ListFiles();
+
+                    foreach (var share in shares)
+                    {
+                        this.Out($"Share: {share.GetName()}");
+                    }
+                }
+                catch (Exception)
+                {
+                    this.Out($"Access Denied.");
+                }
+
+            }
+
+
+
+            var first = list1[0];
+            var file3 = new SmbFile($"smb://{first}/" );
+            var exists3 = file2.Exists();
+            var list3 = file3.List();
+
+            foreach (var smbFile in list3)
+            {
+                this.Out($"{smbFile}");
+            }
+
+            var a = 1;
+
+            //foreach (var nname in nnames)
+            //{
+            //    var addrs = nname.GetInetAddress();
+            //    this.Out($"{nname.GetHostName()} = {addrs}");
+            //}
         }
     }
 }

@@ -223,8 +223,7 @@ namespace SharpCifs
         {
             Sem sem = new Sem(2);
             int type = NbtAddress.IsWins(svr) ? unchecked(0x1b) : unchecked(0x1d);
-            QueryThread q1X = new QueryThread(sem, name, type, null, svr
-                );
+            QueryThread q1X = new QueryThread(sem, name, type, null, svr);
             QueryThread q20 = new QueryThread(sem, name, unchecked(0x20), null, svr);
             q1X.SetDaemon(true);
             q20.SetDaemon(true);
@@ -317,8 +316,8 @@ namespace SharpCifs
         /// <exception cref="UnknownHostException"></exception>
         public static UniAddress GetByName(string hostname, bool possibleNtDomainOrWorkgroup)
         {
-            UniAddress[] addrs = GetAllByName(hostname, possibleNtDomainOrWorkgroup
-                );
+            UniAddress[] addrs = GetAllByName(hostname, 
+                                              possibleNtDomainOrWorkgroup);
             return addrs[0];
         }
 
