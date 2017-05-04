@@ -8,13 +8,16 @@ Xamarin/.NET Core対応のSMB/CIFS(Windows共有)アクセスライブラリで�
 [SharpCifs](https://github.com/zinkpad/SharpCifs)を .NET Standard に移植したものです。  
 
 ## Description
-**It's still a pre-release version!**  
 You can access the Windows shared folder, NAS by Xamarin, .NET Core.(= without mpr.dll, Netapi32.dll)  
-It's a little rework of [SharpCifs](https://github.com/zinkpad/SharpCifs), and The origin is [JCIFS](https://jcifs.samba.org/).  
+It's a rework of [SharpCifs](https://github.com/zinkpad/SharpCifs), and The origin is [JCIFS](https://jcifs.samba.org/).  
   
-**ざっくり動作確認しただけのプレリリース版です。** 不具合のお知らせは再現手順を添えて頂けるとありがたいです。  
+and, NetBios name resolution was recovered, which was not working in pre-release version. Smb-Server scanning is  available.
+
+
 Windowsの共有フォルダやNASへ、Xamarin/.NET Coreアプリからアクセス出来ます。  
-[JCIFS](https://jcifs.samba.org/)のWindows Phone 8.1移植版だった[SharpCifs](https://github.com/zinkpad/SharpCifs)を、.NET Standardで動作するように少しだけ書き換えています。  
+[JCIFS](https://jcifs.samba.org/)のWindows Phone 8.1移植版だった[SharpCifs](https://github.com/zinkpad/SharpCifs)を、.NET Standardで動作するように修正しました。  
+  
+また、プレリリース版では動作していなかった NetBios名前解決 が修復できましたので、LAN上の共有サーバ走査などが可能になりました。  
 
 Supports .NET Standard 1.3 (= Xamarin.Android/iOS1.0, .NET Core1.0, .NET Framework 4.6)
 
@@ -24,7 +27,8 @@ System.Net.NameResolution (>= 4.3.0)
 System.Net.Sockets (>= 4.3.0)  
 System.Security.Cryptography.Algorithms (>= 4.3.0)  
 System.Security.Cryptography.Primitives (>= 4.3.0)  
-System.Threading.Thread (>= 4.3.0)  
+System.Threading.Tasks (>=4.3.0)  
+~System.Threading.Thread (>= 4.3.0)~ <-removed  
 
 ## Usage  
 　  
@@ -64,6 +68,39 @@ Create New file and Writing:
     file.CreateNewFile();
     var writeStream = file.GetOutputStream();
     writeStream.Write(Encoding.UTF8.GetBytes("Hello!"));
+
+Get SMB-Server & Shares on LAN:
+
+    //**Change local port for NetBios. In many cases, use of the well-known port is restricted. **
+    SharpCifs.Config.SetProperty("jcifs.smb.client.lport", "8137");
+    
+    var lan = new SmbFile("smb://", "");
+    var workgroups = lan.ListFiles();
+
+    foreach (var workgroup in workgroups)
+    {
+        Console.WriteLine($"Workgroup Name = {workgroup.GetName()}");
+
+        var servers = workgroup.ListFiles();
+        foreach (var server in servers)
+        {
+            Console.WriteLine($"{workgroup.GetName()} - Server Name = {server.GetName()}");
+
+            try
+            {
+                var shares = server.ListFiles();
+
+                foreach (var share in shares)
+                {
+                    Console.WriteLine($"{workgroup.GetName()}{server.GetName()} - Share Name = {share.GetName()}");
+                }
+            }
+            catch (Exception)
+            {
+                Console.WriteLine($"{workgroup.GetName()}{server.GetName()} - Access Denied");
+            }
+        }
+    }
 
 ## Licence
 [LGPL v2.1 Licence](https://github.com/ume05rw/Xb.Core/blob/master/LICENSE)
