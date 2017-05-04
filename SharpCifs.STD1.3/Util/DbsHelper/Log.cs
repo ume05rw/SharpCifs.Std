@@ -13,7 +13,7 @@ namespace SharpCifs.Util.DbsHelper
         /// <summary>
         /// コンソールへのログ出力を行うか否か
         /// </summary>
-        public static bool IsActive { get; set; } = true;
+        public static bool IsActive { get; set; } = false;
 
         public static void Out(string message)
         {
