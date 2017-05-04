@@ -272,54 +272,39 @@ namespace TestSharpCifs
             //ローカルポートのみを変更する。ウェルノウンポートは管理者権限が必要なので。
             SharpCifs.Config.SetProperty("jcifs.smb.client.lport", "2137");
 
-            var file = new SmbFile("smb://", "");
-            var exists = file.Exists();
+            var lan = new SmbFile("smb://", "");
+            var workgroups = lan.ListFiles();
 
-            var list1 = file.List();
-            var listFiles = file.ListFiles();
-            var file2 = listFiles[0];
-            var exists2 = listFiles[0].Exists();
-
-            var list2 = file2.ListFiles();
-            foreach (var smbFile in list2)
+            foreach (var workgroup in workgroups)
             {
-                this.Out($"Server: {smbFile.GetName()}");
+                Console.WriteLine($"Workgroup Name = {workgroup.GetName()}");
+                this.Out($"Workgroup Name = {workgroup.GetName()}");
 
-                try
+                var servers = workgroup.ListFiles();
+                foreach (var server in servers)
                 {
-                    var shares = smbFile.ListFiles();
+                    Console.WriteLine($"{workgroup.GetName()} - Server Name = {server.GetName()}");
+                    this.Out($"{workgroup.GetName()} - Server Name = {server.GetName()}");
 
-                    foreach (var share in shares)
+                    try
                     {
-                        this.Out($"Share: {share.GetName()}");
+                        var shares = server.ListFiles();
+
+                        foreach (var share in shares)
+                        {
+                            Console.WriteLine($"{workgroup.GetName()}{server.GetName()} - Share Name = {share.GetName()}");
+                            this.Out($"{workgroup.GetName()}{server.GetName()} - Share Name = {share.GetName()}");
+                        }
+                    }
+                    catch (Exception)
+                    {
+                        Console.WriteLine($"{workgroup.GetName()}{server.GetName()} - Access Denied");
+                        this.Out($"{workgroup.GetName()}{server.GetName()} - Access Denied");
                     }
                 }
-                catch (Exception)
-                {
-                    this.Out($"Access Denied.");
-                }
-
             }
 
-
-
-            var first = list1[0];
-            var file3 = new SmbFile($"smb://{first}/" );
-            var exists3 = file2.Exists();
-            var list3 = file3.List();
-
-            foreach (var smbFile in list3)
-            {
-                this.Out($"{smbFile}");
-            }
-
-            var a = 1;
-
-            //foreach (var nname in nnames)
-            //{
-            //    var addrs = nname.GetInetAddress();
-            //    this.Out($"{nname.GetHostName()} = {addrs}");
-            //}
+            Console.WriteLine("Fin");
         }
     }
 }
