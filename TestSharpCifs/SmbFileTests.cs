@@ -205,9 +205,59 @@ namespace TestSharpCifs
             //ローカルポートのみを変更する。ウェルノウンポートは管理者権限が必要なので。
             SharpCifs.Config.SetProperty("jcifs.smb.client.lport", "2137");
 
-            var nname = NbtAddress.GetByName("ume01srv");
+            var srvName1 = Secrets.Get("ServerName");
+            var nname = NbtAddress.GetByName(srvName1);
             var addrs = nname.GetInetAddress();
-            this.Out($"{addrs}");
+            this.Out($"{srvName1} = {addrs}");
+            Assert.AreEqual(this.ServerName, addrs.ToString());
+
+
+            var srvName2 = Secrets.Get("ServerName2");
+            nname = NbtAddress.GetByName(srvName2);
+            addrs = nname.GetInetAddress();
+            this.Out($"{srvName2} = {nname.GetHostName()}");
+            Assert.AreEqual(this.ServerName, addrs.ToString());
+        }
+
+        [TestMethod()]
+        public void GetAllByAddressTest()
+        {
+            //ローカルポートと共に、宛先ポートを変更してしまう。
+            //SharpCifs.Config.SetProperty("jcifs.netbios.lport", "2137");
+
+            //ローカルポートのみを変更する。ウェルノウンポートは管理者権限が必要なので。
+            SharpCifs.Config.SetProperty("jcifs.smb.client.lport", "2137");
+
+            var srvName1 = Secrets.Get("ServerName");
+            var nnames = NbtAddress.GetAllByAddress(srvName1);
+
+            foreach (var nname in nnames)
+            {
+                var addrs = nname.GetInetAddress();
+                this.Out($"{srvName1} = {addrs}");
+            }
+        }
+
+        /// <summary>
+        /// 動くは動くけども、すごい遅い。
+        /// 検出率もいまいち
+        /// </summary>
+        [TestMethod()]
+        public void GetHostsTest()
+        {
+            //ローカルポートと共に、宛先ポートを変更してしまう。
+            //SharpCifs.Config.SetProperty("jcifs.netbios.lport", "2137");
+
+            //ローカルポートのみを変更する。ウェルノウンポートは管理者権限が必要なので。
+            SharpCifs.Config.SetProperty("jcifs.smb.client.lport", "2137");
+
+            var nnames = NbtAddress.GetHosts();
+
+            foreach (var nname in nnames)
+            {
+                var addrs = nname.GetInetAddress();
+                this.Out($"{nname.GetHostName()} = {addrs}");
+            }
         }
     }
 }

@@ -18,7 +18,7 @@ namespace SharpCifs.Util.DbsHelper
         public static void Out(string message)
         {
             if (!Log.IsActive
-                || !string.IsNullOrEmpty(message))
+                || string.IsNullOrEmpty(message))
                 return;
 
             var msg = "[ThID: "
