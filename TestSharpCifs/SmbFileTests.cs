@@ -2,11 +2,13 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Security.Cryptography;
 using System.Text;
 using System.Threading.Tasks;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using SharpCifs.Netbios;
 using SharpCifs.Smb;
+using SharpCifs.Util.Sharpen;
 using TestXb;
 
 namespace TestSharpCifs
@@ -38,12 +40,161 @@ namespace TestSharpCifs
             return $"smb://{this.UserName}:{this.Password}@{this.ServerName}/{path}";
         }
 
+
+
+        [TestMethod()]
+        public void AuthTest()
+        {
+            var auth1 = new NtlmPasswordAuthentication($"{this.UserName}:{this.Password}");
+            var startTime = default(DateTime);
+
+            var file = new SmbFile(this.GetUriString("FreeArea/SharpCifsTest/test.txt"));
+            Assert.IsTrue(file.Exists());
+
+
+            startTime = DateTime.Now;
+            for (var i = 0; i < 1000; i++)
+            {
+                var file1 = new SmbFile($"smb://{this.ServerName}/FreeArea/SharpCifsTest/test.txt", auth1);
+                Assert.IsTrue(file1.Exists());
+            }
+            this.Out($"use auth1: {(DateTime.Now - startTime).TotalMilliseconds} msec");
+
+
+            var auth2 = new NtlmPasswordAuthentication(null, this.UserName, this.Password);
+            startTime = DateTime.Now;
+            for (var i = 0; i < 1000; i++)
+            {
+                var file1 = new SmbFile($"smb://{this.ServerName}/FreeArea/SharpCifsTest/test.txt", auth2);
+                Assert.IsTrue(file1.Exists());
+            }
+            this.Out($"use auth2: {(DateTime.Now - startTime).TotalMilliseconds} msec");
+
+
+            startTime = DateTime.Now;
+            for (var i = 0; i < 1000; i++)
+            {
+                var file1 =
+                    new SmbFile(
+                        $"smb://{this.UserName}:{this.Password}@{this.ServerName}/FreeArea/SharpCifsTest/test.txt");
+                Assert.IsTrue(file1.Exists());
+            }
+            this.Out($"use url  : {(DateTime.Now - startTime).TotalMilliseconds} msec");
+        }
+
+
         [TestMethod()]
         public void ConnectTest()
         {
-            var file = new SmbFile(this.GetUriString("FreeArea/SharpCifsTest/test.txt"));
-            Assert.IsTrue(file.Exists());
+            //SmbFile(java.lang.String url)
+            var dir1 = new SmbFile(this.GetUriString("FreeArea/SharpCifsTest/"));
+            Assert.IsTrue(dir1.Exists());
+
+            //SmbFile(SmbFile context, java.lang.String name)
+            var file1 = new SmbFile(dir1, "test.txt");
+            Assert.IsTrue(file1.Exists());
+
+
+            var file2 = new SmbFile(this.GetUriString("FreeArea/SharpCifsTest/not_exists_file.txt"));
+            Assert.IsFalse(file2.Exists());
+
+            var dir2 = new SmbFile(this.GetUriString("FreeArea/SharpCifsTest/not_exists_dir/"));
+            Assert.IsFalse(dir2.Exists());
         }
+
+
+        /// <summary>
+        /// 共有アクセステスト
+        /// </summary>
+        /// <remarks>
+        /// 排他アクセスが出来るかと思ったが、違うらしい。
+        /// 本家jcifsも同じ現象が発生していた。
+        /// 使い方が分からない。
+        /// </remarks>
+        [TestMethod()]
+        public void ShareAccessFlagTest()
+        {
+            var sameUrl = this.GetUriString("FreeArea/SharpCifsTest/test.txt");
+
+            //for recover
+            var file = new SmbFile(sameUrl, null, SmbFile.FileShareDelete);
+            Assert.IsTrue(file.Exists());
+            var fileReadStream = file.GetInputStream();
+            var bytes = Xb.Byte.GetBytes((Stream) fileReadStream);
+            fileReadStream.Dispose();
+            this.Out($"base: {Encoding.UTF8.GetString(bytes)}");
+            fileReadStream.Close();
+
+
+            var tmpFile = default(SmbFile);
+            var reader = default(InputStream);
+            var writer = default(OutputStream);
+
+            //1)ShareAccess = FileNoShare
+            var shareAccessWriteFile = new SmbFile(sameUrl, null, SmbFile.FileNoShare);
+            Assert.IsTrue(shareAccessWriteFile.Exists());
+            reader = file.GetInputStream();
+
+            try
+            {
+                //multiple read same file
+                tmpFile = new SmbFile(sameUrl);
+                var tmpReader = tmpFile.GetInputStream();
+
+                Assert.Fail();
+            }
+            catch (SmbException ex)
+            {
+                this.Out(ex); // <- OK.
+            }
+            catch (Exception ex)
+            {
+                this.Out(ex);
+                reader.Dispose();
+                Assert.Fail();
+            }
+            reader.Dispose();
+
+
+            //2)ShareAccess = FileShareDelete (default)
+            var shareAccessDeleteFile = new SmbFile(sameUrl, null, SmbFile.FileShareDelete);
+            Assert.IsTrue(shareAccessDeleteFile.Exists());
+            reader = file.GetInputStream();
+
+            try
+            {
+                //multiple read same file
+                tmpFile = new SmbFile(sameUrl);
+                var tmpReader = tmpFile.GetInputStream();
+                tmpReader.Dispose();
+            }
+            catch (SmbException ex)
+            {
+                this.Out(ex); // <- WHY HERE?
+
+                reader.Dispose();
+
+                //recover
+                writer = file.GetOutputStream();
+                writer.Write(bytes);
+                writer.Dispose();
+
+                Assert.Fail();   
+            }
+            catch (Exception ex)
+            {
+                this.Out(ex);
+                Assert.Fail();
+            }
+            reader.Dispose();
+            
+
+            //recover
+            writer = file.GetOutputStream();
+            writer.Write(bytes);
+            writer.Dispose();
+        }
+
 
         [TestMethod()]
         public void StreamReadTest()
@@ -63,6 +214,7 @@ namespace TestSharpCifs
 
             readStream.Dispose();
         }
+
 
         [TestMethod()]
         public void CreateWriteDeleteTest()
@@ -99,6 +251,7 @@ namespace TestSharpCifs
             Assert.IsFalse(file2.Exists());
         }
 
+
         [TestMethod()]
         public void GetListTest()
         {
@@ -112,7 +265,7 @@ namespace TestSharpCifs
             foreach (var file in list)
             {
                 var name = file.GetName();
-                Assert.IsTrue((new string[] {"taihi.7z", "test.txt", "win10スタートメニュー.txt"}).Contains(name));
+                Assert.IsTrue(Enumerable.Contains((new string[] {"taihi.7z", "test.txt", "win10スタートメニュー.txt"}), name));
 
                 var time = file.LastModified();
                 var dateteime = baseDate.AddMilliseconds(time).ToLocalTime();
@@ -175,6 +328,7 @@ namespace TestSharpCifs
             }
         }
 
+
         [TestMethod()]
         public void ZipStreamReadingTest()
         {
@@ -199,10 +353,11 @@ namespace TestSharpCifs
             }
         }
 
+
         [TestMethod()]
         public void GetByNameTest()
         {
-            //ローカルポートと共に、宛先ポートを変更してしまう。
+            //NG: ローカルポートと共に、宛先ポートを変更してしまう。
             //SharpCifs.Config.SetProperty("jcifs.netbios.lport", "2137");
 
             //ローカルポートのみを変更する。ウェルノウンポートは管理者権限が必要なので。
@@ -222,10 +377,11 @@ namespace TestSharpCifs
             Assert.AreEqual(this.ServerName, addrs.ToString());
         }
 
+
         [TestMethod()]
         public void GetAllByAddressTest()
         {
-            //ローカルポートと共に、宛先ポートを変更してしまう。
+            //NG: ローカルポートと共に、宛先ポートを変更してしまう。
             //SharpCifs.Config.SetProperty("jcifs.netbios.lport", "2137");
 
             //ローカルポートのみを変更する。ウェルノウンポートは管理者権限が必要なので。
@@ -241,6 +397,7 @@ namespace TestSharpCifs
             }
         }
 
+
         /// <summary>
         /// 動くは動くけども、すごい遅い。
         /// 検出率もいまいち
@@ -248,7 +405,7 @@ namespace TestSharpCifs
         [TestMethod()]
         public void GetHostsTest()
         {
-            //ローカルポートと共に、宛先ポートを変更してしまう。
+            //NG: ローカルポートと共に、宛先ポートを変更してしまう。
             //SharpCifs.Config.SetProperty("jcifs.netbios.lport", "2137");
 
             //ローカルポートのみを変更する。ウェルノウンポートは管理者権限が必要なので。
@@ -263,10 +420,11 @@ namespace TestSharpCifs
             }
         }
 
+
         [TestMethod()]
         public void LocalScanTest()
         {
-            //ローカルポートと共に、宛先ポートを変更してしまう。
+            //NG: ローカルポートと共に、宛先ポートを変更してしまう。
             //SharpCifs.Config.SetProperty("jcifs.netbios.lport", "2137");
 
             //ローカルポートのみを変更する。ウェルノウンポートは管理者権限が必要なので。
@@ -277,13 +435,11 @@ namespace TestSharpCifs
 
             foreach (var workgroup in workgroups)
             {
-                Console.WriteLine($"Workgroup Name = {workgroup.GetName()}");
                 this.Out($"Workgroup Name = {workgroup.GetName()}");
 
                 var servers = workgroup.ListFiles();
                 foreach (var server in servers)
                 {
-                    Console.WriteLine($"{workgroup.GetName()} - Server Name = {server.GetName()}");
                     this.Out($"{workgroup.GetName()} - Server Name = {server.GetName()}");
 
                     try
@@ -292,19 +448,15 @@ namespace TestSharpCifs
 
                         foreach (var share in shares)
                         {
-                            Console.WriteLine($"{workgroup.GetName()}{server.GetName()} - Share Name = {share.GetName()}");
                             this.Out($"{workgroup.GetName()}{server.GetName()} - Share Name = {share.GetName()}");
                         }
                     }
                     catch (Exception)
                     {
-                        Console.WriteLine($"{workgroup.GetName()}{server.GetName()} - Access Denied");
                         this.Out($"{workgroup.GetName()}{server.GetName()} - Access Denied");
                     }
                 }
             }
-
-            Console.WriteLine("Fin");
         }
     }
 }

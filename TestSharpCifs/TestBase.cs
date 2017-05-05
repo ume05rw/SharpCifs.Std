@@ -23,6 +23,11 @@ namespace TestXb
             Trace.WriteLine($"{DateTime.Now.ToString("HH:mm:ss.fff")}: {message}");
         }
 
+        protected void Out(Exception ex)
+        {
+            var message = Xb.Util.GetErrorHighlighted(ex);
+            this.Out(message);
+        }
 
         protected void OutHighlighted(params System.String[] messages)
         {

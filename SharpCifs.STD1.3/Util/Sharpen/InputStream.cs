@@ -31,7 +31,7 @@ namespace SharpCifs.Util.Sharpen
             if (Wrapped != null)
             {
                 //Stream.`Close` method deleted
-                //Wrapped.Close ();
+                //Wrapped.Close();
                 Wrapped.Dispose();
             }
         }

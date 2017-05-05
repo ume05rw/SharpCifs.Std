@@ -762,11 +762,6 @@ namespace SharpCifs.Smb
 
         /// <exception cref="System.UriFormatException"></exception>
         /// <exception cref="UnknownHostException"></exception>
-        /*internal SmbFile(Jcifs.Smb.SmbFile context, string name, int type, int attributes
-            , long createTime, long lastModified, long size)
-            : this(context.IsWorkgroup0() ?
-                new Uri(null, "smb://" + name + "/") : new Uri(context.url,
-                name + ((attributes & ATTR_DIRECTORY) > 0 ? "/" : string.Empty)))*/
         internal SmbFile(SmbFile context,
                          string name,
                          int type,
