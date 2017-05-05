@@ -458,5 +458,76 @@ namespace TestSharpCifs
                 }
             }
         }
+
+
+        [TestMethod()]
+        public void GetCanonicalPathTest()
+        {
+            var stopHere = 1;
+            var auth = new NtlmPasswordAuthentication($"{this.UserName}:{this.Password}");
+            string url;
+            string path;
+            SmbFile smb;
+
+            //ファイル名 - 加工なし
+            url = $"smb://{this.ServerName}/Apps/Others/[BinaryEditor] Stirling.zip";
+            smb = new SmbFile(url, auth);
+            path = smb.GetCanonicalPath();
+            Assert.AreEqual(url, path);
+
+            //フォルダ名 - 加工なし
+            url = $"smb://{this.ServerName}/FreeArea/SharpCifsTest/";
+            smb = new SmbFile(url, auth);
+            path = smb.GetCanonicalPath();
+            Assert.AreEqual(url, path);
+
+            //不正なフォルダ名だが、加工なし
+            url = $"smb://{this.ServerName}/FreeArea/SharpCifsTest";
+            smb = new SmbFile(url, auth);
+            path = smb.GetCanonicalPath();
+            Assert.AreEqual(url, path);
+
+            //相対パスを絶対化
+            url = $"smb://{this.ServerName}/FreeArea/SharpCifsTest/../";
+            smb = new SmbFile(url, auth);
+            path = smb.GetCanonicalPath();
+            Assert.AreEqual($"smb://{this.ServerName}/FreeArea/", path);
+
+            //相対パスを絶対化
+            url = $"smb://{this.ServerName}/FreeArea/SharpCifsTest/.././";
+            smb = new SmbFile(url, auth);
+            path = smb.GetCanonicalPath();
+            Assert.AreEqual($"smb://{this.ServerName}/FreeArea/", path);
+
+            //相対パスを絶対化
+            url = $"smb://{this.ServerName}/FreeArea/SharpCifsTest/../.";
+            smb = new SmbFile(url, auth);
+            path = smb.GetCanonicalPath();
+            Assert.AreEqual($"smb://{this.ServerName}/FreeArea/", path);
+
+            //相対パスを絶対化
+            url = $"smb://{this.ServerName}/FreeArea/SharpCifsTest/..";
+            smb = new SmbFile(url, auth);
+            path = smb.GetCanonicalPath();
+            Assert.AreEqual($"smb://{this.ServerName}/FreeArea/", path);
+
+            //相対パスを絶対化
+            url = $"smb://{this.ServerName}/FreeArea/SharpCifsTest/../../Apps/./Others/[BinaryEditor] Stirling.zip";
+            smb = new SmbFile(url, auth);
+            path = smb.GetCanonicalPath();
+            Assert.AreEqual($"smb://{this.ServerName}/Apps/Others/[BinaryEditor] Stirling.zip", path);
+
+            //実際に存在するかどうかは検証せず、相対パスを絶対化
+            url = $"smb://{this.ServerName}/FreeArea/SharpCifsTest/../../NOT-EXISTS-SHARE/NOT-EXISTS-FILE.txt";
+            smb = new SmbFile(url, auth);
+            path = smb.GetCanonicalPath();
+            Assert.AreEqual($"smb://{this.ServerName}/NOT-EXISTS-SHARE/NOT-EXISTS-FILE.txt", path);
+
+            //末尾にスペースを入れる
+            url = $"smb://{this.ServerName}/FreeArea/SharpCifsTest  ";
+            smb = new SmbFile(url, auth);
+            path = smb.GetCanonicalPath();
+            Assert.AreEqual($"smb://{this.ServerName}/FreeArea/SharpCifsTest", path); //スペースが無くなるはず
+        }
     }
 }

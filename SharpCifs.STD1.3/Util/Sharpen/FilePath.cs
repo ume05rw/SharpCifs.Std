@@ -139,9 +139,7 @@ namespace SharpCifs.Util.Sharpen
 
         public string GetCanonicalPath()
         {
-            string p = Path.GetFullPath(_path);
-            p.TrimEnd(Path.DirectorySeparatorChar);
-            return p;
+            return Path.GetFullPath(_path);
         }
 
         public string GetName()
