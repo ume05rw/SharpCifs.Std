@@ -24,6 +24,7 @@ using SharpCifs.Dcerpc.Msrpc;
 using SharpCifs.Netbios;
 using SharpCifs.Util;
 using SharpCifs.Util.Sharpen;
+using System.Threading.Tasks;
 
 namespace SharpCifs.Smb
 {
@@ -3057,7 +3058,14 @@ namespace SharpCifs.Smb
             }
             w = new WriterThread(this);
             w.SetDaemon(true);
-            w.Start();
+
+            var started = false;
+            w.Start(() => { started = true; });
+
+            //wait for start thread
+            while (!started)
+                Task.Delay(300).GetAwaiter().GetResult();
+
             SmbTransport t1 = Tree.Session.transport;
             SmbTransport t2 = dest.Tree.Session.transport;
             if (t1.SndBufSize < t2.SndBufSize)

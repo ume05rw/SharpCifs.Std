@@ -179,7 +179,7 @@ namespace TestSharpCifs
                 writer.Write(bytes);
                 writer.Dispose();
 
-                Assert.Fail();   
+                Assert.Fail();
             }
             catch (Exception ex)
             {
@@ -187,7 +187,7 @@ namespace TestSharpCifs
                 Assert.Fail();
             }
             reader.Dispose();
-            
+
 
             //recover
             writer = file.GetOutputStream();
@@ -424,39 +424,63 @@ namespace TestSharpCifs
         [TestMethod()]
         public void LocalScanTest()
         {
-            //NG: ローカルポートと共に、宛先ポートを変更してしまう。
+            //ローカルポートと共に、宛先ポートを変更してしまう。
             //SharpCifs.Config.SetProperty("jcifs.netbios.lport", "2137");
 
             //ローカルポートのみを変更する。ウェルノウンポートは管理者権限が必要なので。
             SharpCifs.Config.SetProperty("jcifs.smb.client.lport", "2137");
 
-            var lan = new SmbFile("smb://", "");
-            var workgroups = lan.ListFiles();
+            SmbFile[] workgroups;
+            try
+            {
+                var lan = new SmbFile("smb://", "");
+                workgroups = lan.ListFiles();
+            }
+            catch (Exception ex)
+            {
+                throw;
+            }
+
 
             foreach (var workgroup in workgroups)
             {
+                Console.WriteLine($"Workgroup Name = {workgroup.GetName()}");
                 this.Out($"Workgroup Name = {workgroup.GetName()}");
 
-                var servers = workgroup.ListFiles();
-                foreach (var server in servers)
+                try
                 {
-                    this.Out($"{workgroup.GetName()} - Server Name = {server.GetName()}");
-
-                    try
+                    var servers = workgroup.ListFiles();
+                    foreach (var server in servers)
                     {
-                        var shares = server.ListFiles();
+                        Console.WriteLine($"{workgroup.GetName()} - Server Name = {server.GetName()}");
+                        this.Out($"{workgroup.GetName()} - Server Name = {server.GetName()}");
 
-                        foreach (var share in shares)
+                        try
                         {
-                            this.Out($"{workgroup.GetName()}{server.GetName()} - Share Name = {share.GetName()}");
+                            var shares = server.ListFiles();
+
+                            foreach (var share in shares)
+                            {
+                                Console.WriteLine($"{workgroup.GetName()}/{server.GetName()} - Share Name = {share.GetName()}");
+                                this.Out($"{workgroup.GetName()}/{server.GetName()} - Share Name = {share.GetName()}");
+                            }
+                        }
+                        catch (Exception)
+                        {
+                            Console.WriteLine($"{workgroup.GetName()}/{server.GetName()} - Access Denied");
+                            this.Out($"{workgroup.GetName()}/{server.GetName()} - Access Denied");
                         }
                     }
-                    catch (Exception)
-                    {
-                        this.Out($"{workgroup.GetName()}{server.GetName()} - Access Denied");
-                    }
                 }
+                catch (Exception ex)
+                {
+                    Console.WriteLine($"{workgroup.GetName()} - Access Denied");
+                    this.Out($"{workgroup.GetName()} - Access Denied");
+                }
+
             }
+
+            Console.WriteLine("Fin");
         }
 
 
@@ -539,10 +563,23 @@ namespace TestSharpCifs
 
             //ローカルポートのみを変更する。ウェルノウンポートは管理者権限が必要なので。
             SharpCifs.Config.SetProperty("jcifs.smb.client.lport", "8137");
+            try
+            {
+                var lan = new SmbFile("smb://", "");
+                var workgroups = lan.ListFiles();
+            }
+            catch (Exception ex)
+            {
+                throw;
+            }
+            
 
-            var nbtAddrs = NbtAddress.GetAllByAddress("UME01SRV");
 
-            foreach(var nbtAddr in nbtAddrs)
+            //var nbtAddrs = NbtAddress.GetAllByAddress("COCO4");
+            //var nbtAddrs = NbtAddress.GetAllByAddress("127.0.0.1");
+            var nbtAddrs = NbtAddress.GetAllByAddress("192.168.254.11");
+
+            foreach (var nbtAddr in nbtAddrs)
             {
                 this.Out($"{nbtAddr.GetHostName()} - {nbtAddr.GetInetAddress()}");
             }

@@ -1,0 +1,22 @@
+{
+  "version": 2,
+  "exports": {
+    "SharpCifs.STD1.3/1.0.0": {
+      "type": "project",
+      "framework": ".NETStandard,Version=v1.3",
+      "compile": {
+        "bin/Debug/SharpCifs.Std.dll": {}
+      },
+      "runtime": {
+        "bin/Debug/SharpCifs.Std.dll": {}
+      },
+      "contentFiles": {
+        "bin/Debug/SharpCifs.Std.pdb": {
+          "buildAction": "None",
+          "codeLanguage": "any",
+          "copyToOutput": true
+        }
+      }
+    }
+  }
+}

@@ -240,7 +240,7 @@ namespace SharpCifs.Netbios
             {
                 _socketReciever = new SocketEx(AddressFamily.InterNetwork, SocketType.Dgram, ProtocolType.Udp);
                 _socketReciever.Bind(new IPEndPoint(IPAddress.Any, reqPort));
-                
+
                 if (_waitResponse)
                 {
                     _thread = new Thread(this);
@@ -686,7 +686,13 @@ namespace SharpCifs.Netbios
             _autoResetWaitReceive = new AutoResetEvent(false);
             _thread = new Thread(this);
             _thread.SetDaemon(true);
-            _thread.Start();
+            
+            var started = false;
+            _thread.Start(() => { started = true; });
+
+            //wait for start thread
+            while (!started)
+                Task.Delay(300).GetAwaiter().GetResult();
 
             _autoResetWaitReceive.WaitOne();
 
