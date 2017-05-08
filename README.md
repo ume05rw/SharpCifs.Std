@@ -42,12 +42,23 @@ System.Threading.Tasks (>=4.3.0)
 
 Get Item in Folder:
 
-    var folder = new SmbFile("smb://UserName:Password@ServerName/ShareName/Folder/")); //<-need last'/' in directory
+    var auth = new NtlmPasswordAuthentication("UserName:Password");
+    var url = "smb://ServerIP/ShareName/FolderName/";
+    //               needs last '/' in directory  ^
+    
+    var folder = new SmbFile(url, auth);
     var epocDate = new DateTime(1970, 1, 1, 0, 0, 0, DateTimeKind.Utc);
+    
     foreach (var item in folder.ListFiles())
     {
-        var lastModDate = baseDate.AddMilliseconds(item.LastModified()).ToLocalTime();
-        Console.WriteLine($"Name: {item.GetName()}, isDir?: {item.IsDirectory()}, Date: {lastModDate.ToString("yyyy-MM-dd HH:mm:ss")}"); 
+        var lastModDate = epocDate.AddMilliseconds(item.LastModified())
+                                  .ToLocalTime();
+    
+        var name = item.GetName();
+        var type = item.IsDirectory() ? "dir" : "file";
+        var date = lastModDate.ToString("yyyy-MM-dd HH:mm:ss");
+        var msg = $"{name} ({type}) - LastMod: {date}";
+        Console.WriteLine(msg);
     }
   
 File Reading:  
