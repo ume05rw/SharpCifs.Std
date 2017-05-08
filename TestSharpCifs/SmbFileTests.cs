@@ -529,5 +529,23 @@ namespace TestSharpCifs
             path = smb.GetCanonicalPath();
             Assert.AreEqual($"smb://{this.ServerName}/FreeArea/SharpCifsTest", path); //スペースが無くなるはず
         }
+
+
+        [TestMethod()]
+        public void NbtAddressTest()
+        {
+            //NG: ローカルポートと共に、宛先ポートを変更してしまう。
+            //SharpCifs.Config.SetProperty("jcifs.netbios.lport", "2137");
+
+            //ローカルポートのみを変更する。ウェルノウンポートは管理者権限が必要なので。
+            SharpCifs.Config.SetProperty("jcifs.smb.client.lport", "8137");
+
+            var nbtAddrs = NbtAddress.GetAllByAddress("UME01SRV");
+
+            foreach(var nbtAddr in nbtAddrs)
+            {
+                this.Out($"{nbtAddr.GetHostName()} - {nbtAddr.GetInetAddress()}");
+            }
+        }
     }
 }
