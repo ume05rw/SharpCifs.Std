@@ -58,7 +58,7 @@ Get Item in Folder:
   
 File Reading:  
 
-    var file = new SmbFile("smb://UserName:Password@ServerName/ShareName/Folder/FileName.txt"));
+    var file = new SmbFile("smb://UserName:Password@ServerIP/ShareName/Folder/FileName.txt"));
     var readStream = file.GetInputStream();
     var buffer = new byte[1024*8];
     var memStream = new MemoryStream();
@@ -70,7 +70,7 @@ File Reading:
 
 Create New file and Writing:  
 
-    var file = new SmbFile("smb://UserName:Password@ServerName/ShareName/Folder/NewFileName.txt"));
+    var file = new SmbFile("smb://UserName:Password@ServerIP/ShareName/Folder/NewFileName.txt"));
     file.CreateNewFile();
     var writeStream = file.GetOutputStream();
     writeStream.Write(Encoding.UTF8.GetBytes("Hello!"));
