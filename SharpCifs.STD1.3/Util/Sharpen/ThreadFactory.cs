@@ -1,3 +1,5 @@
+using System.Threading.Tasks;
+
 namespace SharpCifs.Util.Sharpen
 {
     internal class ThreadFactory
@@ -6,7 +8,14 @@ namespace SharpCifs.Util.Sharpen
         {
             Thread t = new Thread(r);
             t.SetDaemon(true);
-            t.Start();
+
+            var started = false;
+            t.Start(() => { started = true; });
+
+            //wait for start thread
+            while (!started)
+                Task.Delay(300).GetAwaiter().GetResult();
+
             return t;
         }
     }

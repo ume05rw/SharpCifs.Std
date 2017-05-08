@@ -22,6 +22,7 @@ using SharpCifs.Netbios;
 using SharpCifs.Util;
 using SharpCifs.Util.Sharpen;
 using Extensions = SharpCifs.Util.Sharpen.Extensions;
+using System.Threading.Tasks;
 
 namespace SharpCifs
 {
@@ -231,8 +232,15 @@ namespace SharpCifs
             {
                 lock (sem)
                 {
-                    q1X.Start();
-                    q20.Start();
+                    var q1xXtarted = false;
+                    var q20Xtarted = false;
+                    q1X.Start(() => { q1xXtarted = true; });
+                    q20.Start(() => { q20Xtarted = true; });
+
+                    //wait for start thread
+                    while (!q1xXtarted || !q20Xtarted)
+                        Task.Delay(300).GetAwaiter().GetResult();
+
                     while (sem.Count > 0 && q1X.Ans == null && q20.Ans == null)
                     {
                         Runtime.Wait(sem);

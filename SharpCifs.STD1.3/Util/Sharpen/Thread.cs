@@ -205,7 +205,10 @@ namespace SharpCifs.Util.Sharpen
                         startedCallback?.Invoke();
                     });
                 }
-                catch(Exception){}
+                catch(Exception ex)
+                {
+                    var a = 1;
+                }
 
                 try
                 {

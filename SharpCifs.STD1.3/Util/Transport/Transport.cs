@@ -18,6 +18,7 @@ using System;
 using System.IO;
 using SharpCifs.Smb;
 using SharpCifs.Util.Sharpen;
+using System.Threading.Tasks;
 
 namespace SharpCifs.Util.Transport
 {
@@ -239,7 +240,13 @@ namespace SharpCifs.Util.Transport
                     Thread.SetDaemon(true);
                     lock (Thread)
                     {
-                        Thread.Start();
+                        var started = false;
+                        Thread.Start(() => { started = true; });
+
+                        //wait for start thread
+                        while (!started)
+                            Task.Delay(300).GetAwaiter().GetResult();
+
                         Runtime.Wait(Thread, timeout);
                         switch (State)
                         {
