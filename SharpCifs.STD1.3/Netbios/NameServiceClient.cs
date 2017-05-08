@@ -27,6 +27,7 @@ using SharpCifs.Util.DbsHelper;
 using SharpCifs.Util.Sharpen;
 
 using Thread = SharpCifs.Util.Sharpen.Thread;
+using System.Threading.Tasks;
 
 namespace SharpCifs.Netbios
 {
@@ -244,7 +245,13 @@ namespace SharpCifs.Netbios
                 {
                     _thread = new Thread(this);
                     _thread.SetDaemon(true);
-                    _thread.Start();
+
+                    var started = false;
+                    _thread.Start(() => { started = true; });
+
+                    //wait for start thread
+                    while (!started)
+                        Task.Delay(300).GetAwaiter().GetResult();
                 }
             }
         }
@@ -562,10 +569,10 @@ namespace SharpCifs.Netbios
                                         }
                                         throw new UnknownHostException(ioe);
                                     }
-                                    if (response.Received && response.ResultCode == 0
+                                    if (response.Received 
+                                        && response.ResultCode == 0
                                         && response.IsResponse)
                                     {
-
                                         response.AddrEntry[0].HostName.SrcHashCode
                                             = request.Addr.GetHashCode();
                                         return response.AddrEntry[0];

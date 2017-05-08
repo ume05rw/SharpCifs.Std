@@ -182,7 +182,7 @@ namespace SharpCifs.Util.Sharpen
             System.Threading.Tasks.Task.Delay((int) milis).Wait();
         }
 
-        public void Start()
+        public void Start(Action startedCallback = null)
         {
             //_thread.Start();
             this._canceller = new CancellationTokenSource();
@@ -197,6 +197,15 @@ namespace SharpCifs.Util.Sharpen
 
                 _wrapperThread = this;
                 this._id = System.Environment.CurrentManagedThreadId;
+
+                try
+                {
+                    System.Threading.Tasks.Task.Delay(10).ContinueWith(t => 
+                    {
+                        startedCallback?.Invoke();
+                    });
+                }
+                catch(Exception){}
 
                 try
                 {
