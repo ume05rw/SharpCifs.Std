@@ -705,6 +705,11 @@ namespace SharpCifs.Util.Sharpen
             return ((IPEndPoint)socket.LocalEndPoint).Port;
         }
 
+        public static IPAddress GetLocalInetAddress(this Socket socket)
+        {
+            return ((IPEndPoint)socket.LocalEndPoint).Address;
+        }
+
         public static int GetPort(this Socket socket)
         {
             return ((IPEndPoint)socket.RemoteEndPoint).Port;

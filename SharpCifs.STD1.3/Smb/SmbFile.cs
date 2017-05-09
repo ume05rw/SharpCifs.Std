@@ -3058,13 +3058,7 @@ namespace SharpCifs.Smb
             }
             w = new WriterThread(this);
             w.SetDaemon(true);
-
-            var started = false;
-            w.Start(() => { started = true; });
-
-            //wait for start thread
-            while (!started)
-                Task.Delay(300).GetAwaiter().GetResult();
+            w.Start(true);
 
             SmbTransport t1 = Tree.Session.transport;
             SmbTransport t2 = dest.Tree.Session.transport;

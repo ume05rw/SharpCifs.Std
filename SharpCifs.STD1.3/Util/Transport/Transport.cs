@@ -143,9 +143,11 @@ namespace SharpCifs.Util.Transport
 
         private void Loop()
         {
-            //while (Thread == Thread.CurrentThread())
             while (Thread.CurrentThread().Equals(Thread))
             {
+                if (Thread.IsCanceled)
+                    break;
+
                 try
                 {
                     ServerMessageBlock key = PeekKey();
@@ -154,9 +156,11 @@ namespace SharpCifs.Util.Transport
                         throw new IOException("end of stream");
                     }
 
-
                     lock (this)
                     {
+                        if (Thread.IsCanceled)
+                            break;
+
                         Response response = (Response)ResponseMap.Get(key);
                         if (response == null)
                         {
@@ -169,6 +173,10 @@ namespace SharpCifs.Util.Transport
                         else
                         {
                             DoRecv(response);
+
+                            if (Thread.IsCanceled)
+                                break;
+
                             response.IsReceived = true;
                             Runtime.NotifyAll(this);
                         }
@@ -179,10 +187,12 @@ namespace SharpCifs.Util.Transport
                     string msg = ex.Message;
                     bool timeout = msg != null && msg.Equals("Read timed out");
                     bool hard = timeout == false;
+
                     if (!timeout && Log.Level >= 3)
                     {
                         Runtime.PrintStackTrace(ex, Log);
                     }
+
                     try
                     {
                         Disconnect(hard);
@@ -236,16 +246,18 @@ namespace SharpCifs.Util.Transport
                     }
                     State = 1;
                     Te = null;
+
+                    if (Thread != null)
+                    {
+                        Thread.Cancel(true);
+                        Thread.Dispose();
+                    }
+
                     Thread = new Thread(this);
                     Thread.SetDaemon(true);
                     lock (Thread)
                     {
-                        var started = false;
-                        Thread.Start(() => { started = true; });
-
-                        //wait for start thread
-                        while (!started)
-                            Task.Delay(300).GetAwaiter().GetResult();
+                        Thread.Start(true);
 
                         Runtime.Wait(Thread, timeout);
                         switch (State)
@@ -253,6 +265,8 @@ namespace SharpCifs.Util.Transport
                             case 1:
                                 {
                                     State = 0;
+                                    Thread?.Cancel();
+                                    Thread?.Dispose();
                                     Thread = null;
                                     throw new TransportException("Connection timeout");
                                 }
@@ -262,6 +276,8 @@ namespace SharpCifs.Util.Transport
                                     if (Te != null)
                                     {
                                         State = 4;
+                                        Thread?.Cancel();
+                                        Thread?.Dispose();
                                         Thread = null;
                                         throw Te;
                                     }
@@ -274,6 +290,8 @@ namespace SharpCifs.Util.Transport
                 catch (Exception ie)
                 {
                     State = 0;
+                    Thread?.Cancel();
+                    Thread?.Dispose();
                     Thread = null;
                     throw new TransportException(ie);
                 }
@@ -286,6 +304,8 @@ namespace SharpCifs.Util.Transport
                             Log.WriteLine("Invalid state: " + State);
                         }
                         State = 0;
+                        Thread?.Cancel();
+                        Thread?.Dispose();
                         Thread = null;
                     }
                 }
@@ -331,6 +351,8 @@ namespace SharpCifs.Util.Transport
 
                     case 4:
                         {
+                            Thread?.Cancel();
+                            Thread?.Dispose();
                             Thread = null;
                             State = 0;
                             break;
@@ -342,6 +364,8 @@ namespace SharpCifs.Util.Transport
                             {
                                 Log.WriteLine("Invalid state: " + State);
                             }
+                            Thread?.Cancel();
+                            Thread?.Dispose();
                             Thread = null;
                             State = 0;
                             break;
@@ -390,6 +414,8 @@ namespace SharpCifs.Util.Transport
 
                     case 4:
                         {
+                            Thread?.Cancel();
+                            Thread?.Dispose();
                             Thread = null;
                             State = 0;
                             break;
@@ -401,6 +427,8 @@ namespace SharpCifs.Util.Transport
                             {
                                 Log.WriteLine("Invalid state: " + State);
                             }
+                            Thread?.Cancel();
+                            Thread?.Dispose();
                             Thread = null;
                             State = 0;
                             break;
@@ -416,6 +444,10 @@ namespace SharpCifs.Util.Transport
         public virtual void Run()
         {
             Thread runThread = Thread.CurrentThread();
+
+            if (runThread.IsCanceled)
+                return;
+
             Exception ex0 = null;
             try
             {
@@ -431,27 +463,33 @@ namespace SharpCifs.Util.Transport
             {
                 lock (runThread)
                 {
-                    //if (runThread != Thread)
-                    if (!runThread.Equals(Thread))
+                    if (!runThread.IsCanceled)
                     {
+                        if (!runThread.Equals(Thread))
+                        {
+                            if (ex0 != null)
+                            {
+                                if (Log.Level >= 2)
+                                {
+                                    Runtime.PrintStackTrace(ex0, Log);
+                                }
+                            }
+                            //return;
+                        }
                         if (ex0 != null)
                         {
-                            if (Log.Level >= 2)
-                            {
-                                Runtime.PrintStackTrace(ex0, Log);
-                            }
+                            Te = new TransportException(ex0);
                         }
-                        //return;
+                        State = 2;
+                        // run connected
+                        Runtime.Notify(runThread);
                     }
-                    if (ex0 != null)
-                    {
-                        Te = new TransportException(ex0);
-                    }
-                    State = 2;
-                    // run connected
-                    Runtime.Notify(runThread);
                 }
             }
+
+            if (runThread.IsCanceled)
+                return;
+
             Loop();
         }
 

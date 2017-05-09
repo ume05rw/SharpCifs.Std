@@ -1,3 +1,4 @@
+using SharpCifs.Util.DbsHelper;
 using System;
 using System.Collections.Generic;
 using System.Threading;
@@ -6,139 +7,137 @@ namespace SharpCifs.Util.Sharpen
 {
     public class Thread : IRunnable
     {
-        private static ThreadGroup _defaultGroup = new ThreadGroup();
-        private bool _interrupted;
-        private IRunnable _runnable;
-        private ThreadGroup _tgroup;
-
-        //private System.Threading.Thread _thread;
-        private string _name = string.Empty;
-        private bool _isBackground = true;
-        private int? _id = null;
-        private System.Threading.Tasks.Task _task = null;
-        private System.Threading.CancellationTokenSource _canceller = null;
-
-        public int? Id => this._id;
-
-
+        private static ThreadGroup DefaultGroup = new ThreadGroup();
 
         [ThreadStatic]
-        private static Thread _wrapperThread;
+        private static Thread WrapperThread;
+
+        public static Thread CurrentThread()
+        {
+            if (Thread.WrapperThread == null)
+            {
+                Thread.WrapperThread = new Thread(System.Environment.CurrentManagedThreadId);
+            }
+
+            return Thread.WrapperThread;
+        }
+
+
+        public CancellationTokenSource Canceller => this._canceller;
+
+        public bool IsCanceled
+        {
+            get
+            {
+                if (this._canceller?.IsCancellationRequested == true
+                    && !this._isCanceled)
+                {
+                    this._isCanceled = true;
+                }
+
+                return this._isCanceled;
+            }
+        }
+
+        private IRunnable _runnable;
+        private ThreadGroup _tgroup;
+        private System.Threading.Tasks.Task _task = null;
+        private CancellationTokenSource _canceller = null;
+
+        private string _name = string.Empty;
+        private bool _isBackground = true;
+        private bool _interrupted = false;
+        private int? _id = null;
+        private bool _isRunning = false;
+        private bool _isCanceled = false;
+
+
 
         public Thread() : this(null, null, null)
         {
         }
 
+
         public Thread(string name) : this(null, null, name)
         {
         }
+
 
         public Thread(ThreadGroup grp, string name) : this(null, grp, name)
         {
         }
 
+
         public Thread(IRunnable runnable) : this(runnable, null, null)
         {
         }
 
-        Thread(IRunnable runnable, ThreadGroup grp, string name)
+
+        private Thread(IRunnable runnable, ThreadGroup grp, string name)
         {
-            //_thread = new System.Threading.Thread(InternalRun);
-
             this._runnable = runnable ?? this;
-            _tgroup = grp ?? _defaultGroup;
-            _tgroup.Add(this);
-
+            this._tgroup = grp ?? DefaultGroup;
+            this._tgroup.Add(this);
 
             if (name != null)
             {
-                //_thread.Name = name;
                 this._name = name;
             }
         }
 
+
         private Thread(int threadId)
         {
-            //_thread = t;
             this._id = threadId;
 
-            _tgroup = _defaultGroup;
-            _tgroup.Add(this);
+            this._tgroup = DefaultGroup;
+            this._tgroup.Add(this);
         }
-
-        public static Thread CurrentThread()
-        {
-            if (_wrapperThread == null)
-            {
-                _wrapperThread = new Thread(System.Environment.CurrentManagedThreadId);
-            }
-            return _wrapperThread;
-        }
+        
 
         public string GetName()
         {
-            //return _thread.Name;
             return this._name;
         }
 
+
         public ThreadGroup GetThreadGroup()
         {
-            return _tgroup;
+            return this._tgroup;
         }
 
-        //moved into Task.Run of Start method
-        //private void InternalRun()
-        //{
-        //    _wrapperThread = this;
-        //    try
-        //    {
-        //        _runnable.Run();
-        //    }
-        //    catch (Exception exception)
-        //    {
-        //        Console.WriteLine(exception);
-        //    }
-        //    finally
-        //    {
-        //        _tgroup.Remove(this);
-        //    }
-        //}
 
         public static void Yield()
         {
         }
 
+
         public void Interrupt()
         {
-            //lock (_thread)
-            //{
-            //    _interrupted = true;
-            //    _thread.Interrupt ();
-            //    _thread.Abort();
-            //}
-
             this._interrupted = true;
             this._canceller?.Cancel(true);
         }
 
+
         public static bool Interrupted()
         {
-            if (Thread._wrapperThread == null)
+            if (Thread.WrapperThread == null)
             {
                 return false;
             }
-            Thread wrapperThread = Thread._wrapperThread;
+
+            Thread wrapperThread = Thread.WrapperThread;
             lock (wrapperThread)
             {
-                bool interrupted = Thread._wrapperThread._interrupted;
-                Thread._wrapperThread._interrupted = false;
+                bool interrupted = Thread.WrapperThread._interrupted;
+                Thread.WrapperThread._interrupted = false;
                 return interrupted;
             }
         }
 
+
         public bool IsAlive()
         {
-            //return _thread.IsAlive;
             if (this._task == null)
                 return true; //実行されていない
 
@@ -148,91 +147,98 @@ namespace SharpCifs.Util.Sharpen
                     && !this._task.IsCompleted);
         }
 
+
         public void Join()
         {
-            //_thread.Join();
             this._task?.Wait();
         }
 
+
         public void Join(long timeout)
         {
-            //_thread.Join((int)timeout);
             this._task?.Wait((int) timeout);
         }
+
 
         public virtual void Run()
         {
         }
 
+
         public void SetDaemon(bool daemon)
         {
-            //_thread.IsBackground = daemon;
             this._isBackground = daemon;
         }
 
+
         public void SetName(string name)
         {
-            //_thread.Name = name;
             this._name = name;
         }
 
+
         public static void Sleep(long milis)
         {
-            //System.Threading.Thread.Sleep((int)milis);
             System.Threading.Tasks.Task.Delay((int) milis).Wait();
         }
 
-        public void Start(Action startedCallback = null)
+
+        public void Start(bool isSynced = false)
         {
-            //_thread.Start();
+            if (this._isRunning)
+                throw new InvalidOperationException("Thread Already started.");
+
             this._canceller = new CancellationTokenSource();
             
             this._task = System.Threading.Tasks.Task.Run(() =>
             {
-                //ThreadPool's thread NOT to use Foreground
-                //if (!this._isBackground)
-                //{
-                //    System.Threading.Thread.CurrentThread.IsBackground = false;
-                //}
-
-                _wrapperThread = this;
+                Thread.WrapperThread = this;
                 this._id = System.Environment.CurrentManagedThreadId;
 
+                //Log.Out("Thread.Start - Task Start");
+                this._isRunning = true;
+                
                 try
                 {
-                    System.Threading.Tasks.Task.Delay(10).ContinueWith(t => 
-                    {
-                        startedCallback?.Invoke();
-                    });
-                }
-                catch(Exception ex)
-                {
-                    var a = 1;
-                }
-
-                try
-                {
-                    _runnable.Run();
+                    this._runnable.Run();
+                    //Log.Out("Thread.Start - Task Normaly End");
                 }
                 catch (Exception exception)
                 {
+                    //Log.Out("Thread.Start - Task Error End");
                     Console.WriteLine(exception);
                 }
                 finally
                 {
-                    _tgroup.Remove(this);
+                    this._isRunning = false;
 
+                    this._tgroup?.Remove(this);
 
-                    this._canceller.Dispose();
+                    this._canceller?.Dispose();
                     this._canceller = null;
+
+                    //Log.Out("Thread.Start - Task Close Completed");
                 }
             }, this._canceller.Token);
+
+            //同期的に実行するとき、動作中フラグONまで待つ。
+            if (isSynced)
+                while (!this._isRunning)
+                    System.Threading.Tasks.Task.Delay(300).GetAwaiter().GetResult();
         }
 
-        public void Abort()
+
+        public void Cancel(bool isSynced = false)
         {
-            //_thread.Abort();
+            //Log.Out("Thread.Cancel");
+
+            this._isCanceled = true;
             this._canceller?.Cancel(true);
+
+            //同期的に実行するとき、動作中フラグOFFまで待つ。
+            if (isSynced)
+                while (this._isRunning)
+                    System.Threading.Tasks.Task.Delay(300).GetAwaiter().GetResult();
         }
 
 
@@ -242,14 +248,29 @@ namespace SharpCifs.Util.Sharpen
             if (thread == null)
                 return false;
 
-            //自身か渡し値スレッドが実行されていないとき、合致しない
-            if (this.Id == null
-                || thread.Id == null)
+            //自身か渡し値スレッドの、スレッドIDが取得出来ていない(=スレッド未生成)
+            //　→合致しない
+            if (this._id == null
+                || thread._id == null)
                 return false;
 
-            return (this.Id == thread.Id);
+            return (this._id == thread._id);
         }
 
+
+        public void Dispose()
+        {
+            //Log.Out("Thread.Dispose");
+
+            this._runnable = null;
+            this._tgroup = null;
+            this._task = null;
+            this._canceller?.Dispose();
+            this._canceller = null;
+            this._name = null;
+            this._isRunning = false;
+            this._id = null;
+        }
     }
 
     public class ThreadGroup

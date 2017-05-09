@@ -8,13 +8,7 @@ namespace SharpCifs.Util.Sharpen
         {
             Thread t = new Thread(r);
             t.SetDaemon(true);
-
-            var started = false;
-            t.Start(() => { started = true; });
-
-            //wait for start thread
-            while (!started)
-                Task.Delay(300).GetAwaiter().GetResult();
+            t.Start(true);
 
             return t;
         }
