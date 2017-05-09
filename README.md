@@ -11,13 +11,8 @@ Xamarin/.NET Core対応のSMB/CIFS(Windows共有)アクセスライブラリで�
 You can access the Windows shared folder, NAS by Xamarin, .NET Core.(= without mpr.dll, Netapi32.dll)  
 It's a rework of [SharpCifs](https://github.com/zinkpad/SharpCifs), and The origin is [JCIFS](https://jcifs.samba.org/).  
   
-and, NetBios name resolution was recovered, which was not working in pre-release version. Smb-Server scanning is  available.
-
-
 Windowsの共有フォルダやNASへ、Xamarin/.NET Coreアプリからアクセス出来ます。  
-[JCIFS](https://jcifs.samba.org/)のWindows Phone 8.1移植版だった[SharpCifs](https://github.com/zinkpad/SharpCifs)を、.NET Standardで動作するように修正しました。  
-  
-また、プレリリース版では動作していなかった NetBios名前解決 が修復できましたので、LAN上の共有サーバ走査などが可能になりました。  
+[JCIFS](https://jcifs.samba.org/)のWindows Phone 8.1移植版だった[SharpCifs](https://github.com/zinkpad/SharpCifs)を、.NET Standardで動作するように修正しました。   
 
 Supports .NET Standard 1.3 (= Xamarin.Android/iOS1.0, .NET Core1.0, .NET Framework 4.6)
 
@@ -63,7 +58,7 @@ Get Item in Folder:
   
 File Reading:  
 
-    var file = new SmbFile("smb://UserName:Password@ServerName/ShareName/Folder/FileName.txt"));
+    var file = new SmbFile("smb://UserName:Password@ServerIP/ShareName/Folder/FileName.txt"));
     var readStream = file.GetInputStream();
     var buffer = new byte[1024*8];
     var memStream = new MemoryStream();
@@ -75,43 +70,10 @@ File Reading:
 
 Create New file and Writing:  
 
-    var file = new SmbFile("smb://UserName:Password@ServerName/ShareName/Folder/NewFileName.txt"));
+    var file = new SmbFile("smb://UserName:Password@ServerIP/ShareName/Folder/NewFileName.txt"));
     file.CreateNewFile();
     var writeStream = file.GetOutputStream();
     writeStream.Write(Encoding.UTF8.GetBytes("Hello!"));
-
-Get SMB-Server & Shares on LAN:
-
-    //**Change local port for NetBios. In many cases, use of the well-known port is restricted. **
-    SharpCifs.Config.SetProperty("jcifs.smb.client.lport", "8137");
-    
-    var lan = new SmbFile("smb://", "");
-    var workgroups = lan.ListFiles();
-
-    foreach (var workgroup in workgroups)
-    {
-        Console.WriteLine($"Workgroup Name = {workgroup.GetName()}");
-
-        var servers = workgroup.ListFiles();
-        foreach (var server in servers)
-        {
-            Console.WriteLine($"{workgroup.GetName()} - Server Name = {server.GetName()}");
-
-            try
-            {
-                var shares = server.ListFiles();
-
-                foreach (var share in shares)
-                {
-                    Console.WriteLine($"{workgroup.GetName()}{server.GetName()} - Share Name = {share.GetName()}");
-                }
-            }
-            catch (Exception)
-            {
-                Console.WriteLine($"{workgroup.GetName()}{server.GetName()} - Access Denied");
-            }
-        }
-    }
 
 ## Licence
 [LGPL v2.1 Licence](https://github.com/ume05rw/SharpCifs.Std/blob/master/LICENSE)

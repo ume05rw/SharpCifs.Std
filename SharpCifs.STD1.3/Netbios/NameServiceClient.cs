@@ -120,7 +120,10 @@ namespace SharpCifs.Netbios
 
             this.laddr = laddr
                             ?? Config.GetLocalHost()
-                            ?? Extensions.GetAddressesByName(Dns.GetHostName()).FirstOrDefault();
+                            ?? Extensions.GetAddressesByName(Dns.GetHostName())?.FirstOrDefault();
+
+            if (this.laddr == null)
+                throw new ArgumentNullException("IPAddress NOT found. if exec on localhost, set vallue to [jcifs.smb.client.laddr]");
 
             try
             {
