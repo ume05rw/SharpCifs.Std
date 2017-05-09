@@ -53,7 +53,7 @@ namespace TestSharpCifs
 
 
             startTime = DateTime.Now;
-            for (var i = 0; i < 1000; i++)
+            for (var i = 0; i < 5; i++)
             {
                 var file1 = new SmbFile($"smb://{this.ServerName}/FreeArea/SharpCifsTest/test.txt", auth1);
                 Assert.IsTrue(file1.Exists());
@@ -63,7 +63,7 @@ namespace TestSharpCifs
 
             var auth2 = new NtlmPasswordAuthentication(null, this.UserName, this.Password);
             startTime = DateTime.Now;
-            for (var i = 0; i < 1000; i++)
+            for (var i = 0; i < 5; i++)
             {
                 var file1 = new SmbFile($"smb://{this.ServerName}/FreeArea/SharpCifsTest/test.txt", auth2);
                 Assert.IsTrue(file1.Exists());
@@ -72,7 +72,7 @@ namespace TestSharpCifs
 
 
             startTime = DateTime.Now;
-            for (var i = 0; i < 1000; i++)
+            for (var i = 0; i < 5; i++)
             {
                 var file1 =
                     new SmbFile(
@@ -364,17 +364,18 @@ namespace TestSharpCifs
             SharpCifs.Config.SetProperty("jcifs.smb.client.lport", "2137");
 
             var srvName1 = Secrets.Get("ServerName");
+            var ipAddr = Secrets.Get("ServerName2");
             var nname = NbtAddress.GetByName(srvName1);
             var addrs = nname.GetInetAddress();
             this.Out($"{srvName1} = {addrs}");
-            Assert.AreEqual(this.ServerName, addrs.ToString());
+            Assert.AreEqual(ipAddr, addrs.ToString());
 
 
-            var srvName2 = Secrets.Get("ServerName2");
-            nname = NbtAddress.GetByName(srvName2);
+            
+            nname = NbtAddress.GetByName(ipAddr);
             addrs = nname.GetInetAddress();
-            this.Out($"{srvName2} = {nname.GetHostName()}");
-            Assert.AreEqual(this.ServerName, addrs.ToString());
+            this.Out($"{ipAddr} = {nname.GetHostName()}");
+            Assert.AreEqual(ipAddr, addrs.ToString());
         }
 
 
@@ -398,27 +399,27 @@ namespace TestSharpCifs
         }
 
 
-        /// <summary>
-        /// 動くは動くけども、すごい遅い。
-        /// 検出率もいまいち
-        /// </summary>
-        [TestMethod()]
-        public void GetHostsTest()
-        {
-            //NG: ローカルポートと共に、宛先ポートを変更してしまう。
-            //SharpCifs.Config.SetProperty("jcifs.netbios.lport", "2137");
+        ///// <summary>
+        ///// 動くは動くけども、すごい遅い。
+        ///// 検出率もいまいち
+        ///// </summary>
+        //[TestMethod()]
+        //public void GetHostsTest()
+        //{
+        //    //NG: ローカルポートと共に、宛先ポートを変更してしまう。
+        //    //SharpCifs.Config.SetProperty("jcifs.netbios.lport", "2137");
 
-            //ローカルポートのみを変更する。ウェルノウンポートは管理者権限が必要なので。
-            SharpCifs.Config.SetProperty("jcifs.smb.client.lport", "2137");
+        //    //ローカルポートのみを変更する。ウェルノウンポートは管理者権限が必要なので。
+        //    SharpCifs.Config.SetProperty("jcifs.smb.client.lport", "2137");
 
-            var nnames = NbtAddress.GetHosts();
+        //    var nnames = NbtAddress.GetHosts();
 
-            foreach (var nname in nnames)
-            {
-                var addrs = nname.GetInetAddress();
-                this.Out($"{nname.GetHostName()} = {addrs}");
-            }
-        }
+        //    foreach (var nname in nnames)
+        //    {
+        //        var addrs = nname.GetInetAddress();
+        //        this.Out($"{nname.GetHostName()} = {addrs}");
+        //    }
+        //}
 
 
         [TestMethod()]
