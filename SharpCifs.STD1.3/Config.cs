@@ -20,6 +20,7 @@ using System.Net;
 using System.Security;
 using SharpCifs.Util;
 using SharpCifs.Util.Sharpen;
+using System.Linq;
 
 namespace SharpCifs
 {
@@ -334,11 +335,13 @@ namespace SharpCifs
         public static IPAddress GetLocalHost()
         {
             string addr = (string)_prp.GetProperty("jcifs.smb.client.laddr");
+            IPAddress result = null;
+
             if (addr != null)
             {
                 try
                 {
-                    return Extensions.GetAddressByName(addr);
+                    result = Extensions.GetAddressByName(addr);
                 }
                 catch (UnknownHostException uhe)
                 {
@@ -349,7 +352,15 @@ namespace SharpCifs
                     }
                 }
             }
-            return null;
+
+            if (result == null)
+            {
+                var addrs = Extensions.GetLocalAddresses();
+                if (addrs != null)
+                    result = addrs.FirstOrDefault();
+            }
+
+            return result;
         }
 
         /// <summary>Retrieve a boolean value.</summary>

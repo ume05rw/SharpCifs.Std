@@ -169,7 +169,6 @@
     <Compile Include="Smb\SmbRandomAccessFile.cs" />
     <Compile Include="Smb\SmbSession.cs" />
     <Compile Include="Smb\SmbShareInfo.cs" />
-    <Compile Include="Smb\SmbSocket.cs" />
     <Compile Include="Smb\SmbTransport.cs" />
     <Compile Include="Smb\SmbTree.cs" />
     <Compile Include="Smb\Trans2FindFirst2.cs" />

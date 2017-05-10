@@ -277,8 +277,6 @@ namespace SharpCifs.Smb
 
         public static readonly List<SmbTransport> Connections = new List<SmbTransport>();
 
-        public static readonly List<SmbSocket> Sockets = new List<SmbSocket>();
-
         public static readonly int SsnLimit
             = Config.GetInt("jcifs.smb.client.ssnLimit", DefaultSsnLimit);
 

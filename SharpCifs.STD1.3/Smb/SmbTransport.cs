@@ -283,14 +283,15 @@ namespace SharpCifs.Smb
                 Socket = new SocketEx(AddressFamily.InterNetwork,
                                       SocketType.Stream,
                                       ProtocolType.Tcp);
-                if (LocalAddr != null)
-                {
-                    Socket.Bind2(new IPEndPoint(LocalAddr, LocalPort));
-                }
 
-                Socket.Connect(new IPEndPoint(IPAddress.Parse(Address.GetHostAddress()),
+                //TCPローカルポートは、毎回空いているものを使う。
+                //https://blogs.msdn.microsoft.com/dgorti/2005/09/18/only-one-usage-of-each-socket-address-protocolnetwork-addressport-is-normally-permitted/
+                Socket.Bind(new IPEndPoint(LocalAddr, 0));
+
+                Socket.Connect(new IPEndPoint(IPAddress.Parse(Address.GetHostAddress()), 
                                               139),
                                SmbConstants.ConnTimeout);
+                
                 Socket.SoTimeOut = SmbConstants.SoTimeout;
 
                 Out = Socket.GetOutputStream();
@@ -383,14 +384,15 @@ namespace SharpCifs.Smb
                     Socket = new SocketEx(AddressFamily.InterNetwork,
                                           SocketType.Stream,
                                           ProtocolType.Tcp);
-                    if (LocalAddr != null)
-                    {
-                        Socket.Bind2(new IPEndPoint(LocalAddr, LocalPort));
-                    }
 
-                    Socket.Connect(new IPEndPoint(IPAddress.Parse(Address.GetHostAddress()),
-                                                  port),
+                    //TCPローカルポートは、毎回空いているものを使う。
+                    //https://blogs.msdn.microsoft.com/dgorti/2005/09/18/only-one-usage-of-each-socket-address-protocolnetwork-addressport-is-normally-permitted/
+                    Socket.Bind(new IPEndPoint(LocalAddr, 0));
+
+                    Socket.Connect(new IPEndPoint(IPAddress.Parse(Address.GetHostAddress()), 
+                                                  port), // <- 445
                                    SmbConstants.ConnTimeout);
+
                     Socket.SoTimeOut = SmbConstants.SoTimeout;
                     Out = Socket.GetOutputStream();
                     In = Socket.GetInputStream();
@@ -529,6 +531,7 @@ namespace SharpCifs.Smb
 
                 //Socket.`Close` method deleted
                 //Socket.Close();
+                Socket.Shutdown(SocketShutdown.Both);
                 Socket.Dispose();
             }
             finally
