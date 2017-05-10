@@ -19,6 +19,7 @@ namespace TestSharpCifs
         private DateTime EpocDate = new DateTime(1970, 1, 1, 0, 0, 0, DateTimeKind.Utc);
 
         private string ServerName { get; set; }
+        private string ServerIp { get; set; }
         private string UserName { get; set; }
         private string Password { get; set; }
 
@@ -30,6 +31,7 @@ namespace TestSharpCifs
             if (Secrets.HasSecrets)
             {
                 this.ServerName = Secrets.Get("ServerName");
+                this.ServerIp = Secrets.Get("ServerIp");
                 this.UserName = Secrets.Get("UserName");
                 this.Password = Secrets.Get("Password");
             }
@@ -363,14 +365,12 @@ namespace TestSharpCifs
             //ローカルポートのみを変更する。ウェルノウンポートは管理者権限が必要なので。
             SharpCifs.Config.SetProperty("jcifs.smb.client.lport", "2137");
 
-            var srvName1 = Secrets.Get("ServerName");
-            var ipAddr = Secrets.Get("ServerName2");
+            var srvName1 = this.ServerName;
+            var ipAddr = this.ServerIp;
             var nname = NbtAddress.GetByName(srvName1);
             var addrs = nname.GetInetAddress();
             this.Out($"{srvName1} = {addrs}");
             Assert.AreEqual(ipAddr, addrs.ToString());
-
-
             
             nname = NbtAddress.GetByName(ipAddr);
             addrs = nname.GetInetAddress();
@@ -429,7 +429,7 @@ namespace TestSharpCifs
             //SharpCifs.Config.SetProperty("jcifs.netbios.lport", "2137");
 
             //ローカルポートのみを変更する。ウェルノウンポートは管理者権限が必要なので。
-            SharpCifs.Config.SetProperty("jcifs.smb.client.lport", "2137");
+            SharpCifs.Config.SetProperty("jcifs.smb.client.lport", "8137");
 
             SmbFile[] workgroups;
             try

@@ -21,12 +21,14 @@ namespace SharpCifs.Util.DbsHelper
                 || string.IsNullOrEmpty(message))
                 return;
 
-            var msg = "[ThID: "
+            var msg = DateTime.Now.ToString("HH:mm:ss.fff") 
+                      + ": [ThID: "
                       + System.Environment.CurrentManagedThreadId.ToString().PadLeft(3)
                       + " "
                       + message;
 
-            Debug.WriteLine(DateTime.Now.ToString("HH:mm:ss.fff") + ": " + msg);
+            Debug.WriteLine(msg);
+            Console.WriteLine(msg);
         }
 
         /// <summary>

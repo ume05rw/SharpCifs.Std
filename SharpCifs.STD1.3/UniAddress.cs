@@ -232,14 +232,8 @@ namespace SharpCifs
             {
                 lock (sem)
                 {
-                    var q1xXtarted = false;
-                    var q20Xtarted = false;
-                    q1X.Start(() => { q1xXtarted = true; });
-                    q20.Start(() => { q20Xtarted = true; });
-
-                    //wait for start thread
-                    while (!q1xXtarted || !q20Xtarted)
-                        Task.Delay(300).GetAwaiter().GetResult();
+                    q1X.Start();
+                    q20.Start();
 
                     while (sem.Count > 0 && q1X.Ans == null && q20.Ans == null)
                     {

@@ -151,7 +151,8 @@ namespace SharpCifs.Util.Sharpen
                 {
                     try
                     {
-                        t.Abort();
+                        t.Cancel(true);
+                        t.Dispose();
                     }
                     catch { }
                 }

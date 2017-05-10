@@ -8,7 +8,8 @@
     "Microsoft.NETCore.App": {
       "type": "platform",
       "version": "1.0.1"
-    }
+    },
+    "Xb.Core.Json": "1.0.4"
   },
 
   "frameworks": {

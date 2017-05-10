@@ -417,7 +417,7 @@ namespace SharpCifs.Netbios
 
         public static NbtAddress[] GetHosts()
         {
-            Log.Out("NbtAddress.GetHosts");
+            //Log.Out("NbtAddress.GetHosts");
             return new NameServiceClient().GetHosts();
         }
 
