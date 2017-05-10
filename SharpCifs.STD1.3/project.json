@@ -5,6 +5,7 @@
     "NETStandard.Library": "1.6.0",
     "System.Console": "4.3.0",
     "System.Net.NameResolution": "4.3.0",
+    "System.Net.NetworkInformation": "4.3.0",
     "System.Net.Sockets": "4.3.0",
     "System.Security.Cryptography.Algorithms": "4.3.0",
     "System.Security.Cryptography.Primitives": "4.3.0",

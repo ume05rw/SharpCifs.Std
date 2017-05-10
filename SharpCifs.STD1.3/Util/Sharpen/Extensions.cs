@@ -5,6 +5,7 @@ using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.Net;
+using System.Net.NetworkInformation;
 using System.Net.Sockets;
 using System.Reflection;
 using System.Text;
@@ -643,42 +644,41 @@ namespace SharpCifs.Util.Sharpen
 
         public static IPAddress[] GetAddressesByName(string host)
         {
-            //IReadOnlyList<EndpointPair> data = null;
-
-            //try
-            //{
-            //    Task.Run(async () =>
-            //    {
-            //        data = await DatagramSocket.GetEndpointPairsAsync(new HostName(host), "0");
-            //    }).Wait();
-            //}
-            //catch (Exception ex)
-            //{
-            //    return null;
-            //}
-
-            //return data != null
-            //    ? data.Where(i => i.RemoteHostName.Type == HostNameType.Ipv4)
-            //          .GroupBy(i => i.RemoteHostName.DisplayName)
-            //          .Select(i => IPAddress.Parse(i.First().RemoteHostName.DisplayName))
-            //          .ToArray() 
-            //    : null;
-
             try
             {
                 //get v4-address only
-                var entry = Task.Run(() => System.Net.Dns.GetHostEntryAsync(host))
-                                .GetAwaiter()
-                                .GetResult();
-                return entry.AddressList
-                            .Where(addr => addr.AddressFamily == AddressFamily.InterNetwork)
-                            .ToArray();
+                return System.Net.Dns.GetHostEntryAsync(host)
+                                     .GetAwaiter()
+                                     .GetResult()
+                                     .AddressList
+                                     .Where(addr => addr.AddressFamily == AddressFamily.InterNetwork)
+                                     .ToArray();
             }
             catch (Exception)
             {
                 return null;
             }
         }
+
+
+        public static IPAddress[] GetLocalAddresses()
+        {
+            try
+            {
+                //get v4-address only
+                return NetworkInterface.GetAllNetworkInterfaces()
+                                       .SelectMany(i => i.GetIPProperties().UnicastAddresses)
+                                       .Select(ua => ua.Address)
+                                       .Where(addr => addr.AddressFamily == AddressFamily.InterNetwork
+                                                   && !IPAddress.IsLoopback(addr))
+                                       .ToArray();
+            }
+            catch (Exception)
+            {
+                return null;
+            }
+        }
+
 
         public static string GetImplementationVersion(this Assembly asm)
         {

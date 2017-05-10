@@ -34,7 +34,7 @@ namespace TestCharpCifsCore
 
             //**Change local port for NetBios.
             //  In many cases, use of the well-known port is restricted. **
-            SharpCifs.Config.SetProperty("jcifs.smb.client.lport", "8137");
+            SharpCifs.Config.SetProperty("jcifs.smb.client.lport", "2137");
 
 
             Program.NameResolutionTest();

@@ -365,14 +365,12 @@ namespace TestSharpCifs
             //ローカルポートのみを変更する。ウェルノウンポートは管理者権限が必要なので。
             SharpCifs.Config.SetProperty("jcifs.smb.client.lport", "2137");
 
-            var srvName1 = Secrets.Get("ServerName");
-            var ipAddr = Secrets.Get("ServerName2");
+            var srvName1 = this.ServerName;
+            var ipAddr = this.ServerIp;
             var nname = NbtAddress.GetByName(srvName1);
             var addrs = nname.GetInetAddress();
             this.Out($"{srvName1} = {addrs}");
             Assert.AreEqual(ipAddr, addrs.ToString());
-
-
             
             nname = NbtAddress.GetByName(ipAddr);
             addrs = nname.GetInetAddress();

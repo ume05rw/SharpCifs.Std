@@ -89,8 +89,6 @@ namespace SharpCifs.Netbios
 
         private SocketEx _socketSender;
 
-        private SocketEx _socketReciever;
-
         private Hashtable _responseTable = new Hashtable();
 
         private Thread _thread;
@@ -120,7 +118,7 @@ namespace SharpCifs.Netbios
 
             this.laddr = laddr
                             ?? Config.GetLocalHost()
-                            ?? Extensions.GetAddressesByName(Dns.GetHostName())?.FirstOrDefault();
+                            ?? Extensions.GetLocalAddresses()?.FirstOrDefault();
 
             if (this.laddr == null)
                 throw new ArgumentNullException("IPAddress NOT found. if exec on localhost, set vallue to [jcifs.smb.client.laddr]");
@@ -237,7 +235,7 @@ namespace SharpCifs.Netbios
                 _socketSender == null
                 || _socketSender.LocalEndPoint == null
                 || _socketSender.GetLocalPort() != localPort
-                || !laddr.Equals(_socketSender.GetLocalInetAddress())
+                || !IPAddress.Any.Equals(_socketSender.GetLocalInetAddress())
             )
             {
                 if (_socketSender != null)
@@ -250,24 +248,8 @@ namespace SharpCifs.Netbios
                                              SocketType.Dgram, 
                                              ProtocolType.Udp);
 
-                _socketSender.Bind(new IPEndPoint(laddr, localPort));
-            }
-            
-            var currentPort = (_socketReciever == null || _socketReciever.LocalEndPoint == null) 
-                ? localPort
-                : _socketReciever?.GetLocalPort();
+                _socketSender.Bind(new IPEndPoint(IPAddress.Any, localPort));
 
-            if (_socketReciever == null
-                || localPort != currentPort)
-            {
-                if (_socketReciever != null)
-                {
-                    _socketReciever.Dispose();
-                    _socketReciever = null;
-                }
-
-                _socketReciever = new SocketEx(AddressFamily.InterNetwork, SocketType.Dgram, ProtocolType.Udp);
-                _socketReciever.Bind(new IPEndPoint(IPAddress.Any, localPort));
 
                 if (_waitResponse)
                 {
@@ -301,13 +283,6 @@ namespace SharpCifs.Netbios
                     _socketSender.Dispose();
                     _socketSender = null;
                     //Log.Out("NameSerciceClient.TryClose - _socketSender.Disposed");
-                }
-
-                if (_socketReciever != null)
-                {
-                    _socketReciever.Dispose();
-                    _socketReciever = null;
-                    //Log.Out("NameSerciceClient.TryClose - _socketReciever.Disposed");
                 }
 
                 if (_thread != null)
@@ -345,24 +320,17 @@ namespace SharpCifs.Netbios
 
                     var localPort = (SmbConstants.Lport == 0) ? _lport : SmbConstants.Lport;
 
-                    var sockEvArg1 = new SocketAsyncEventArgs();
-                    sockEvArg1.RemoteEndPoint = new IPEndPoint(IPAddress.Any, localPort);
-                    sockEvArg1.SetBuffer(_rcvBuf, 0, RcvBufSize);
-                    sockEvArg1.Completed += this.OnReceiveCompleted;
+                    var sockEvArg = new SocketAsyncEventArgs();
+                    sockEvArg.RemoteEndPoint = new IPEndPoint(IPAddress.Any, localPort);
+                    sockEvArg.SetBuffer(_rcvBuf, 0, RcvBufSize);
+                    sockEvArg.Completed += this.OnReceiveCompleted;
 
-                    var sockEvArg2 = new SocketAsyncEventArgs();
-                    sockEvArg2.RemoteEndPoint = new IPEndPoint(IPAddress.Any, localPort);
-                    sockEvArg2.SetBuffer(_rcvBuf, 0, RcvBufSize);
-                    sockEvArg2.Completed += this.OnReceiveCompleted;
-
-                    _socketReciever.SoTimeOut = _closeTimeout;
                     _socketSender.SoTimeOut = _closeTimeout;
 
-                    //Log.Out($"NameServiceClient.Run - Wait Recieve: {IPAddress.Any}: {localPort}");
                     this._recievedLength = -1;
 
-                    _socketReciever.ReceiveFromAsync(sockEvArg1);
-                    _socketSender.ReceiveFromAsync(sockEvArg2);
+                    //Log.Out($"NameServiceClient.Run - Wait Recieve: {IPAddress.Any}: {localPort}");
+                    _socketSender.ReceiveFromAsync(sockEvArg);
 
                     while (this._recievedLength == -1)
                     {
@@ -372,8 +340,8 @@ namespace SharpCifs.Netbios
                         Task.Delay(300).GetAwaiter().GetResult();
                     }
 
-                    sockEvArg1?.Dispose();
-                    sockEvArg2?.Dispose();
+                    sockEvArg?.Dispose();
+
 
                     if (_thread.IsCanceled)
                         break;
@@ -626,7 +594,8 @@ namespace SharpCifs.Netbios
                         throw new UnknownHostException(ioe);
                     }
 
-                    if (response.Received && response.ResultCode == 0
+                    if (response.Received 
+                        && response.ResultCode == 0
                         && response.IsResponse)
                     {
                         int last = response.AddrEntry.Length - 1;
