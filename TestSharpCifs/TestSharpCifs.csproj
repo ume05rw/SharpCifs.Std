@@ -125,9 +125,6 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />
-    <None Include="secrets.json">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
     <None Include="secrets_novalue.json">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
