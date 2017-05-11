@@ -45,9 +45,8 @@ System.Threading.Tasks (>=4.3.0)
 　  
 ### Get items in shared folder: ###
 
-    using System;
-    using SharpCifs.Smb;
-    
+    //using System;
+    //using SharpCifs.Smb;
     
     //Get SmbFile-Object of a folder.
     var folder = new SmbFile("smb://UserName:Password@ServerIP/ShareName/FolderName/");
@@ -72,11 +71,10 @@ System.Threading.Tasks (>=4.3.0)
 　  
 ### Read a File: ###
 
-    using System;
-    using System.IO;
-    using System.Text;
-    using SharpCifs.Smb;
-    
+    //using System;
+    //using System.IO;
+    //using System.Text;
+    //using SharpCifs.Smb;
     
     //Get target's SmbFile.
     var file = new SmbFile("smb://UserName:Password@ServerIP/ShareName/Folder/FileName.txt");
@@ -102,9 +100,8 @@ System.Threading.Tasks (>=4.3.0)
 　  
 ### Create a new File: ###
 
-    using System.Text;
-    using SharpCifs.Smb;
-
+    //using System.Text;
+    //using SharpCifs.Smb;
 
     //Get the SmbFile specifying the file name to be created.
     var file = new SmbFile("smb://UserName:Password@ServerIP/ShareName/Folder/NewFileName.txt");
@@ -125,9 +122,8 @@ System.Threading.Tasks (>=4.3.0)
 　  
 ### Scan Servers & Shares on LAN: ###
 
-    using System;
-    using SharpCifs.Smb;
-
+    //using System;
+    //using SharpCifs.Smb;
 
     //When using the host name when connecting,
     //When using the host name when connecting,
