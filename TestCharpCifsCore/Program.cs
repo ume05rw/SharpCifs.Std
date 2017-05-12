@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using SharpCifs.Smb;
+using SharpCifs.Netbios;
 
 namespace TestCharpCifsCore
 {
@@ -36,6 +37,7 @@ namespace TestCharpCifsCore
             //  In many cases, use of the well-known port is restricted. **
             SharpCifs.Config.SetProperty("jcifs.smb.client.lport", "2137");
 
+            Program.NameResolutionTest2();
 
             Program.NameResolutionTest();
 
@@ -47,13 +49,27 @@ namespace TestCharpCifsCore
 
         private static void NameResolutionTest()
         {
-            var namedServer = new SmbFile("smb://ume01srv/apps/", Auth);
+            var namedServer = new SmbFile("smb://XXXX/apps/", Auth);
             var exists = namedServer.Exists();
 
             var list = namedServer.ListFiles();
             foreach (var smb in list)
                 Out($"{smb.GetName()}");
 
+        }
+
+        private static void NameResolutionTest2()
+        {
+            var naddr = NbtAddress.GetByName("COCO4");
+            Out($"{naddr.GetHostName()}");
+
+            var auth = new NtlmPasswordAuthentication("", "XXXX", "XXXX");
+            var namedServer = new SmbFile("smb://XXXX/", auth);
+            var exists = namedServer.Exists();
+
+            var list = namedServer.ListFiles();
+            foreach (var smb in list)
+                Out($"{smb.GetName()}");
         }
 
         private static void LanScanTest()

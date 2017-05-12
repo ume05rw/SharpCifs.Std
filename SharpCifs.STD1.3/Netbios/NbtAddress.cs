@@ -205,9 +205,9 @@ namespace SharpCifs.Netbios
             localHostname = Config.GetProperty("jcifs.netbios.hostname", null);
             if (string.IsNullOrEmpty(localHostname))
             {
+                /*
                 byte[] addr = localInetAddress.GetAddressBytes();
 
-                /*
                 localHostname = "JCIFS" 
                                 + (addr[2] & unchecked((int)(0xFF))) 
                                 + "_" + (addr[3] & unchecked((int)(0xFF))) 
@@ -217,7 +217,14 @@ namespace SharpCifs.Netbios
                                             2
                                         );
                 */
-                localHostname = "JCIFS_127_0_0_1";
+                try
+                {
+                    localHostname = Dns.GetHostName();
+                }
+                catch (Exception)
+                {
+                    localHostname = "JCIFS_127_0_0_1";
+                }
             }
             localName = new Name(localHostname, 
                                  unchecked(0x00), 
