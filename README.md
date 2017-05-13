@@ -83,7 +83,6 @@ System.Threading.Tasks (>=4.3.0)
     var readStream = file.GetInputStream();
 
     //Create reading buffer.
-    var buffer = new byte[1024*8];
     var memStream = new MemoryStream();
 
     //Get bytes.
