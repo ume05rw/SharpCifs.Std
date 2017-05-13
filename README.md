@@ -87,9 +87,7 @@ System.Threading.Tasks (>=4.3.0)
     var memStream = new MemoryStream();
 
     //Get bytes.
-    int size;
-    while ((size = readStream.Read(buffer, 0, buffer.Length)) > 0)
-        memStream.Write(buffer, 0, size);
+    ((Stream)readStream).CopyTo(memStream);
     
     //Dispose readable stream.
     readStream.Dispose();
