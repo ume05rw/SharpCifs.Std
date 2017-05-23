@@ -51,7 +51,8 @@ namespace SharpCifs.Util.Sharpen
                         ProtocolType protocolType)
             : base(addressFamily, socketType, protocolType)
         {
-
+            this.ReceiveBufferSize = 1024 * 8 * 2; //16384
+            this.SendBufferSize = 1024 * 8 * 2;
         }
 
         public void Connect(IPEndPoint endPoint, int timeOut)
