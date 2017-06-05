@@ -136,14 +136,20 @@ namespace SharpCifs.Util.Sharpen
             {
                 if (value == _position)
                     return;
-                if (value == _markedPosition)
+
+                if (value == _markedPosition
+                    && _ist.MarkSupported())
+                {
                     _ist.Reset();
+                }
                 else if (_ist != null && _ist.CanSeek())
                 {
                     _ist.Position = value;
                 }
                 else
+                {
                     throw new NotSupportedException();
+                }
             }
         }
     }
