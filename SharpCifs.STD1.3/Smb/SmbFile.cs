@@ -228,6 +228,14 @@ namespace SharpCifs.Smb
     /// <seealso cref="FilePath">Sharpen.FilePath</seealso>
     public class SmbFile : UrlConnection
     {
+        public static void Initialize()
+        {
+            SmbTransport.ClearCachedConnections();
+            SmbConstants.ApplyConfig();
+        }
+
+
+
         internal const int ORdonly = 0x01;
 
         internal const int OWronly = 0x02;
