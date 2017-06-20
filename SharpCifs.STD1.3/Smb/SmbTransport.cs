@@ -86,6 +86,26 @@ namespace SharpCifs.Smb
             }
         }
 
+
+        /// <summary>
+        /// Clear All Cached Transport-Connections
+        /// </summary>
+        public static void ClearCachedConnections()
+        {
+            lock (typeof(SmbTransport))
+            lock (SmbConstants.Connections)
+            {
+                foreach (var transport in SmbConstants.Connections)
+                {
+                    try { transport.Disconnect(true); }
+                    catch (Exception) {}
+                }
+
+                SmbConstants.Connections.Clear();
+            }
+        }
+
+
         internal class ServerData
         {
             internal byte Flags;

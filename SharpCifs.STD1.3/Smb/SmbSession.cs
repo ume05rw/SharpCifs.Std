@@ -190,6 +190,19 @@ namespace SharpCifs.Smb
             }
         }
 
+
+        /// <summary>
+        /// Clear All Cached Transport-Connections
+        /// </summary>
+        /// <remarks>
+        /// Alias of SmbTransport.ClearCachedConnections
+        /// </remarks>
+        public static void ClearCachedConnections()
+        {
+            SmbTransport.ClearCachedConnections();
+        }
+
+
         internal int ConnectionState;
 
         internal int Uid;

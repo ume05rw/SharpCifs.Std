@@ -49,7 +49,7 @@ namespace TestCharpCifsCore
 
         private static void NameResolutionTest()
         {
-            var namedServer = new SmbFile("smb://XXXX/apps/", Auth);
+            var namedServer = new SmbFile($"smb://{Info.ServerIP}/apps/", Auth);
             var exists = namedServer.Exists();
 
             var list = namedServer.ListFiles();
@@ -60,11 +60,11 @@ namespace TestCharpCifsCore
 
         private static void NameResolutionTest2()
         {
-            var naddr = NbtAddress.GetByName("COCO4");
+            var naddr = NbtAddress.GetByName($"COCO4");
             Out($"{naddr.GetHostName()}");
 
-            var auth = new NtlmPasswordAuthentication("", "XXXX", "XXXX");
-            var namedServer = new SmbFile("smb://XXXX/", auth);
+            var auth = new NtlmPasswordAuthentication("", Info.UserName, Info.Password);
+            var namedServer = new SmbFile($"smb://{Info.ServerIP}/", auth);
             var exists = namedServer.Exists();
 
             var list = namedServer.ListFiles();
