@@ -170,13 +170,13 @@ System.Threading.Tasks (>=4.3.0)
         }
     }
 
-more samples: [http://sharpcifsstd.dobes.jp/#howtouse](http://sharpcifsstd.dobes.jp/#howtouse)
+More samples: [http://sharpcifsstd.dobes.jp/#howtouse](http://sharpcifsstd.dobes.jp/#howtouse)
 
 ## Licence
 [LGPL v2.1 Licence](https://github.com/ume05rw/SharpCifs.Std/blob/master/LICENSE)
 
 ## Showcase
-[Nasphotos (Xamarin.iOS implements - App Store link)](https://itunes.apple.com/us/app/nasphotos-the-simplest-photoframe/id1225087488?l=ja&ls=1&mt=8)
+[ComicLAN (Xamarin.iOS implements - App Store link)](https://itunes.apple.com/us/app/comiclan-necessary-enough-thats-comic-reader/id1252927463?l=ja&ls=1&mt=8)
 
 ## Author
 [Do-Be's](http://dobes.jp)
