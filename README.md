@@ -170,6 +170,7 @@ System.Threading.Tasks (>=4.3.0)
         }
     }
 
+more samples: [http://sharpcifsstd.dobes.jp/#howtouse](http://sharpcifsstd.dobes.jp/#howtouse)
 
 ## Licence
 [LGPL v2.1 Licence](https://github.com/ume05rw/SharpCifs.Std/blob/master/LICENSE)
