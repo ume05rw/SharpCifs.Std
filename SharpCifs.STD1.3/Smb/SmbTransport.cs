@@ -90,18 +90,82 @@ namespace SharpCifs.Smb
         /// <summary>
         /// Clear All Cached Transport-Connections
         /// </summary>
-        public static void ClearCachedConnections()
+        public static void ClearCachedConnections(bool force = false)
         {
             lock (typeof(SmbTransport))
             lock (SmbConstants.Connections)
             {
+                var failedTransport = new List<SmbTransport>();
+
                 foreach (var transport in SmbConstants.Connections)
                 {
-                    try { transport.Disconnect(true); }
-                    catch (Exception) {}
-                }
+                    //強制破棄フラグONのとき、接続状態がどうであれ破棄する。
+                    if (force)
+                    {
+                        SmbConstants.Connections.Remove(transport);
 
-                SmbConstants.Connections.Clear();
+                        try { transport?.Disconnect(true); }
+                        catch (Exception) { }
+
+                        continue;
+                    }
+
+                    //即座に異常と分かるTransportは接続試行せず破棄対象にする。
+                    if (transport == null
+                        || transport.Socket == null
+                        || !transport.Socket.Connected)
+                    {
+                        SmbConstants.Connections.Remove(transport);
+
+                        try { transport?.Disconnect(true); }
+                        catch (Exception) { }
+
+                        continue;
+                    }
+
+
+                    //現在の接続状態を検証する。
+                    //https://msdn.microsoft.com/ja-jp/library/system.net.sockets.socket.connected(v=vs.110).aspx
+                    var isSocketBlocking = transport.Socket.Blocking;
+                    var isConnected = false;
+                    try
+                    {
+                        var tmpBytes = new byte[1];
+                        transport.Socket.Blocking = false;
+                        transport.Socket.Send(tmpBytes, 0, 0);
+                        isConnected = true;
+                    }
+                    catch (SocketException e)
+                    {
+                        if (e.SocketErrorCode == SocketError.WouldBlock)
+                        {
+                            //現在も接続中
+                            isConnected = true;
+                        }
+                        else
+                        {
+                            //切断されている
+                            isConnected = false;
+                        }
+                    }
+                    catch (Exception)
+                    {
+                        //切断されている
+                        isConnected = false;
+                    }
+                    finally
+                    {
+                        transport.Socket.Blocking = isSocketBlocking;
+                    }
+
+                    if (!isConnected)
+                    {
+                        SmbConstants.Connections.Remove(transport);
+
+                        try { transport?.Disconnect(true); }
+                        catch (Exception) { }
+                    }
+                }
             }
         }
 
@@ -541,18 +605,17 @@ namespace SharpCifs.Smb
         {
             try
             {
-                foreach (var ssn in Sessions)
-                {
-                    ssn.Logoff(hard);
-                }
+                if (Sessions != null)
+                    foreach (var ssn in Sessions)
+                        ssn?.Logoff(hard);
 
-                Out.Close();
-                In.Close();
+                Out?.Close();
+                In?.Close();
 
                 //Socket.`Close` method deleted
                 //Socket.Close();
-                Socket.Shutdown(SocketShutdown.Both);
-                Socket.Dispose();
+                Socket?.Shutdown(SocketShutdown.Both);
+                Socket?.Dispose();
             }
             finally
             {
