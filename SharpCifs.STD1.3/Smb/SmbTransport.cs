@@ -25,7 +25,6 @@ using SharpCifs.Util;
 using SharpCifs.Util.Sharpen;
 using SharpCifs.Util.Transport;
 
-
 namespace SharpCifs.Smb
 {
     public class SmbTransport : Transport
@@ -279,7 +278,6 @@ namespace SharpCifs.Smb
 
         internal virtual SmbSession GetSmbSession()
         {
-            //Util.DbsHelper.Log.Out("SmbTransport.GetSmbSession()");
             lock (this)
             {
                 return GetSmbSession(new NtlmPasswordAuthentication(null, null, null));
@@ -288,8 +286,6 @@ namespace SharpCifs.Smb
 
         internal virtual SmbSession GetSmbSession(NtlmPasswordAuthentication auth)
         {
-            //Util.DbsHelper.Log.Out("SmbTransport.GetSmbSession(NtlmPasswordAuthentication auth)");
-
             lock (this)
             {
                 SmbSession ssn;
@@ -325,8 +321,6 @@ namespace SharpCifs.Smb
                                       int localPort,
                                       string hostName)
         {
-            //Util.DbsHelper.Log.Out("SmbTransport.Matches");
-
             if (hostName == null)
             {
                 hostName = address.GetHostName();
@@ -345,8 +339,6 @@ namespace SharpCifs.Smb
         /// <exception cref="SharpCifs.Smb.SmbException"></exception>
         internal virtual bool HasCapability(int cap)
         {
-            //Util.DbsHelper.Log.Out("SmbTransport.HasCapability");
-
             try
             {
                 Connect(SmbConstants.ResponseTimeout);
@@ -360,8 +352,6 @@ namespace SharpCifs.Smb
 
         internal virtual bool IsSignatureSetupRequired(NtlmPasswordAuthentication auth)
         {
-            //Util.DbsHelper.Log.Out("SmbTransport.IsSignatureSetupRequired");
-
             return (Flags2 & SmbConstants.Flags2SecuritySignatures) != 0
                    && Digest == null
                    && auth != NtlmPasswordAuthentication.Null
@@ -371,8 +361,6 @@ namespace SharpCifs.Smb
         /// <exception cref="System.IO.IOException"></exception>
         internal virtual void Ssn139()
         {
-            //Util.DbsHelper.Log.Out("SmbTransport.Ssn139");
-
             Name calledName = new Name(Address.FirstCalledName(), 0x20, null);
             do
             {
@@ -464,7 +452,6 @@ namespace SharpCifs.Smb
         /// <exception cref="System.IO.IOException"></exception>
         private void Negotiate(int port, ServerMessageBlock resp)
         {
-            //Util.DbsHelper.Log.Out("SmbTransport.SmbTransport.Negotiate");
             lock (Sbuf)
             {
                 if (port == 139)
@@ -536,7 +523,6 @@ namespace SharpCifs.Smb
         /// <exception cref="SharpCifs.Smb.SmbException"></exception>
         public virtual void Connect()
         {
-            //Util.DbsHelper.Log.Out("SmbTransport.Connect");
             try
             {
                 base.Connect(SmbConstants.ResponseTimeout);
@@ -550,7 +536,6 @@ namespace SharpCifs.Smb
         /// <exception cref="System.IO.IOException"></exception>
         protected internal override void DoConnect()
         {
-            //Util.DbsHelper.Log.Out("SmbTransport.DoConnect");
             SmbComNegotiateResponse resp = new SmbComNegotiateResponse(Server);
             try
             {
@@ -618,7 +603,6 @@ namespace SharpCifs.Smb
         /// <exception cref="System.IO.IOException"></exception>
         protected internal override void DoDisconnect(bool hard)
         {
-            //Util.DbsHelper.Log.Out("SmbTransport.DoDisconnect");
             try
             {
                 if (Sessions != null)
@@ -645,8 +629,6 @@ namespace SharpCifs.Smb
         /// <exception cref="System.IO.IOException"></exception>
         protected internal override void MakeKey(ServerMessageBlock request)
         {
-            //Util.DbsHelper.Log.Out("SmbTransport.MakeKey");
-
             if (++Mid == 32000)
             {
                 Mid = 1;
@@ -657,8 +639,6 @@ namespace SharpCifs.Smb
         /// <exception cref="System.IO.IOException"></exception>
         protected internal override ServerMessageBlock PeekKey()
         {
-            //Util.DbsHelper.Log.Out("SmbTransport.PeekKey");
-
             int n;
             do
             {
@@ -705,8 +685,6 @@ namespace SharpCifs.Smb
         /// <exception cref="System.IO.IOException"></exception>
         protected internal override void DoSend(ServerMessageBlock request)
         {
-            //Util.DbsHelper.Log.Out("SmbTransport.DoSend");
-
             lock (Buf)
             {
                 ServerMessageBlock smb = request;
@@ -732,8 +710,6 @@ namespace SharpCifs.Smb
         /// <exception cref="System.IO.IOException"></exception>
         protected internal virtual void DoSend0(ServerMessageBlock request)
         {
-            //Util.DbsHelper.Log.Out("SmbTransport.DoSend0");
-
             try
             {
                 DoSend(request);
@@ -759,8 +735,6 @@ namespace SharpCifs.Smb
         /// <exception cref="System.IO.IOException"></exception>
         protected internal override void DoRecv(Response response)
         {
-            //Util.DbsHelper.Log.Out("SmbTransport.DoRecv");
-
             ServerMessageBlock resp = (ServerMessageBlock)response;
             resp.UseUnicode = UseUnicode;
             resp.ExtendedSecurity
@@ -823,8 +797,6 @@ namespace SharpCifs.Smb
         /// <exception cref="System.IO.IOException"></exception>
         protected internal override void DoSkip()
         {
-            //Util.DbsHelper.Log.Out("SmbTransport.DoSkip");
-
             int size = Encdec.Dec_uint16be(Sbuf, 2) & 0xFFFF;
             if (size < 33 || (4 + size) > RcvBufSize)
             {
@@ -839,8 +811,6 @@ namespace SharpCifs.Smb
         /// <exception cref="SharpCifs.Smb.SmbException"></exception>
         internal virtual void CheckStatus(ServerMessageBlock req, ServerMessageBlock resp)
         {
-            //Util.DbsHelper.Log.Out("SmbTransport.CheckStatus");
-
             resp.ErrorCode = SmbException.GetStatusByCode(resp.ErrorCode);
             switch (resp.ErrorCode)
             {
@@ -902,8 +872,6 @@ namespace SharpCifs.Smb
         /// <exception cref="SharpCifs.Smb.SmbException"></exception>
         internal virtual void Send(ServerMessageBlock request, ServerMessageBlock response)
         {
-            //Util.DbsHelper.Log.Out("SmbTransport.Send");
-
             Connect();
             request.Flags2 |= Flags2;
             request.UseUnicode = UseUnicode;
@@ -1021,8 +989,6 @@ namespace SharpCifs.Smb
 
         internal virtual void DfsPathSplit(string path, string[] result)
         {
-            //Util.DbsHelper.Log.Out("SmbTransport.DfsPathSplit");
-
             int ri = 0;
             int rlast = result.Length - 1;
             int i = 0;
@@ -1053,8 +1019,6 @@ namespace SharpCifs.Smb
                                                      string path,
                                                      int rn)
         {
-            //Util.DbsHelper.Log.Out("SmbTransport.GetDfsReferrals");
-
             SmbTree ipc = GetSmbSession(auth).GetSmbTree("IPC$", null);
             Trans2GetDfsReferralResponse resp = new Trans2GetDfsReferralResponse();
             ipc.Send(new Trans2GetDfsReferral(path), resp);
@@ -1103,8 +1067,6 @@ namespace SharpCifs.Smb
                                                          string path,
                                                          int rn)
         {
-            //Util.DbsHelper.Log.Out("SmbTransport.__getDfsReferrals");
-
             SmbTree ipc = GetSmbSession(auth).GetSmbTree("IPC$", null);
             Trans2GetDfsReferralResponse resp = new Trans2GetDfsReferralResponse();
             ipc.Send(new Trans2GetDfsReferral(path), resp);

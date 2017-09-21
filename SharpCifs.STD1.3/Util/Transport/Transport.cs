@@ -93,8 +93,6 @@ namespace SharpCifs.Util.Transport
         /// <exception cref="System.IO.IOException"></exception>
         public virtual void Sendrecv(ServerMessageBlock request, Response response, long timeout)
         {
-            //Util.DbsHelper.Log.Out("Transport.Sendrecv");
-
             lock (this)
             {
                 MakeKey(request);
@@ -145,8 +143,6 @@ namespace SharpCifs.Util.Transport
 
         private void Loop()
         {
-            //Util.DbsHelper.Log.Out("Transport.Loop");
-
             while (Thread.CurrentThread().Equals(Thread))
             {
                 if (Thread.IsCanceled)
@@ -218,8 +214,6 @@ namespace SharpCifs.Util.Transport
         /// <exception cref="SharpCifs.Util.Transport.TransportException"></exception>
         public virtual void Connect(long timeout)
         {
-            //Util.DbsHelper.Log.Out("Transport.Connect");
-
             lock (this)
             {
                 try
@@ -321,7 +315,6 @@ namespace SharpCifs.Util.Transport
         /// <exception cref="System.IO.IOException"></exception>
         public virtual void Disconnect(bool hard)
         {
-            //Util.DbsHelper.Log.Out("Transport.Disconnect");
 
             if (hard)
             {
@@ -450,8 +443,6 @@ namespace SharpCifs.Util.Transport
 
         public virtual void Run()
         {
-            //Util.DbsHelper.Log.Out("Transport.Run");
-
             Thread runThread = Thread.CurrentThread();
 
             if (runThread.IsCanceled)
