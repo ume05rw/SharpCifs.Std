@@ -41,11 +41,11 @@ namespace TestCharpCifsCore
             BigFileTranferTest();
 
 
-            //Program.NameResolutionTest2();
+            Program.NameResolutionTest2();
 
-            //Program.NameResolutionTest();
+            Program.NameResolutionTest();
 
-            //Program.LanScanTest();
+            Program.LanScanTest();
 
             var end = 1;
         }
