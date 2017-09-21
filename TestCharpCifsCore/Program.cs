@@ -4,6 +4,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using SharpCifs.Smb;
 using SharpCifs.Netbios;
+using System.IO;
 
 namespace TestCharpCifsCore
 {
@@ -37,11 +38,37 @@ namespace TestCharpCifsCore
             //  In many cases, use of the well-known port is restricted. **
             SharpCifs.Config.SetProperty("jcifs.smb.client.lport", "2137");
 
-            Program.NameResolutionTest2();
+            BigFileTranferTest();
 
-            Program.NameResolutionTest();
 
-            Program.LanScanTest();
+            //Program.NameResolutionTest2();
+
+            //Program.NameResolutionTest();
+
+            //Program.LanScanTest();
+
+            var end = 1;
+        }
+
+        private static string GetUriString(string path)
+        {
+            return $"smb://{Info.UserName}:{Info.Password}@{Info.ServerName}/{path}";
+        }
+
+        private static void BigFileTranferTest()
+        {
+            var url = GetUriString("FreeArea/SharpCifsTest2/bigfile.zip");
+
+            var startTime = DateTime.Now;
+            Out($"Start");
+
+            var smb = new SmbFile(url);
+            var stream = new MemoryStream();
+            using (var smbStream = smb.GetInputStream())
+            {
+                ((Stream)smbStream).CopyTo(stream);
+            }
+            Out($"End: {(DateTime.Now - startTime).TotalMilliseconds} msec");
 
             var end = 1;
         }
