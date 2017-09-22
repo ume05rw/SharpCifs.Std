@@ -122,7 +122,7 @@ namespace TestSharpCifs
             var file = new SmbFile(sameUrl, null, SmbFile.FileShareDelete);
             Assert.IsTrue(file.Exists());
             var fileReadStream = file.GetInputStream();
-            var bytes = Xb.Byte.GetBytes((Stream) fileReadStream);
+            var bytes = Xb.Byte.GetBytes((Stream)fileReadStream);
             fileReadStream.Dispose();
             this.Out($"base: {Encoding.UTF8.GetString(bytes)}");
             fileReadStream.Close();
@@ -206,7 +206,7 @@ namespace TestSharpCifs
 
             var readStream = file.GetInputStream();
             Assert.AreNotEqual(null, readStream);
-            var stream = (Stream) readStream;
+            var stream = (Stream)readStream;
             Assert.IsTrue(stream.CanRead);
             Assert.IsTrue(stream.CanSeek);
             Assert.AreEqual(0, stream.Position);
@@ -267,7 +267,7 @@ namespace TestSharpCifs
             foreach (var file in list)
             {
                 var name = file.GetName();
-                Assert.IsTrue(Enumerable.Contains((new string[] {"taihi.7z", "test.txt", "win10スタートメニュー.txt"}), name));
+                Assert.IsTrue(Enumerable.Contains((new string[] { "taihi.7z", "test.txt", "win10スタートメニュー.txt" }), name));
 
                 var time = file.LastModified();
                 var dateteime = baseDate.AddMilliseconds(time).ToLocalTime();
@@ -371,7 +371,7 @@ namespace TestSharpCifs
             var addrs = nname.GetInetAddress();
             this.Out($"{srvName1} = {addrs}");
             Assert.AreEqual(ipAddr, addrs.ToString());
-            
+
             nname = NbtAddress.GetByName(ipAddr);
             addrs = nname.GetInetAddress();
             this.Out($"{ipAddr} = {nname.GetHostName()}");
@@ -498,61 +498,61 @@ namespace TestSharpCifs
             url = $"smb://{this.ServerName}/Apps/Others/[BinaryEditor] Stirling.zip";
             smb = new SmbFile(url, auth);
             path = smb.GetCanonicalPath();
-            Assert.AreEqual(url, path);
+            Assert.AreEqual(url.ToUpper(), path.ToUpper());
 
             //フォルダ名 - 加工なし
             url = $"smb://{this.ServerName}/FreeArea/SharpCifsTest/";
             smb = new SmbFile(url, auth);
             path = smb.GetCanonicalPath();
-            Assert.AreEqual(url, path);
+            Assert.AreEqual(url.ToUpper(), path.ToUpper());
 
             //不正なフォルダ名だが、加工なし
             url = $"smb://{this.ServerName}/FreeArea/SharpCifsTest";
             smb = new SmbFile(url, auth);
             path = smb.GetCanonicalPath();
-            Assert.AreEqual(url, path);
+            Assert.AreEqual(url.ToUpper(), path.ToUpper());
 
             //相対パスを絶対化
             url = $"smb://{this.ServerName}/FreeArea/SharpCifsTest/../";
             smb = new SmbFile(url, auth);
             path = smb.GetCanonicalPath();
-            Assert.AreEqual($"smb://{this.ServerName}/FreeArea/", path);
+            Assert.AreEqual($"smb://{this.ServerName}/FreeArea/".ToUpper(), path.ToUpper());
 
             //相対パスを絶対化
             url = $"smb://{this.ServerName}/FreeArea/SharpCifsTest/.././";
             smb = new SmbFile(url, auth);
             path = smb.GetCanonicalPath();
-            Assert.AreEqual($"smb://{this.ServerName}/FreeArea/", path);
+            Assert.AreEqual($"smb://{this.ServerName}/FreeArea/".ToUpper(), path.ToUpper());
 
             //相対パスを絶対化
             url = $"smb://{this.ServerName}/FreeArea/SharpCifsTest/../.";
             smb = new SmbFile(url, auth);
             path = smb.GetCanonicalPath();
-            Assert.AreEqual($"smb://{this.ServerName}/FreeArea/", path);
+            Assert.AreEqual($"smb://{this.ServerName}/FreeArea/".ToUpper(), path.ToUpper());
 
             //相対パスを絶対化
             url = $"smb://{this.ServerName}/FreeArea/SharpCifsTest/..";
             smb = new SmbFile(url, auth);
             path = smb.GetCanonicalPath();
-            Assert.AreEqual($"smb://{this.ServerName}/FreeArea/", path);
+            Assert.AreEqual($"smb://{this.ServerName}/FreeArea/".ToUpper(), path.ToUpper());
 
             //相対パスを絶対化
             url = $"smb://{this.ServerName}/FreeArea/SharpCifsTest/../../Apps/./Others/[BinaryEditor] Stirling.zip";
             smb = new SmbFile(url, auth);
             path = smb.GetCanonicalPath();
-            Assert.AreEqual($"smb://{this.ServerName}/Apps/Others/[BinaryEditor] Stirling.zip", path);
+            Assert.AreEqual($"smb://{this.ServerName}/Apps/Others/[BinaryEditor] Stirling.zip".ToUpper(), path.ToUpper());
 
             //実際に存在するかどうかは検証せず、相対パスを絶対化
             url = $"smb://{this.ServerName}/FreeArea/SharpCifsTest/../../NOT-EXISTS-SHARE/NOT-EXISTS-FILE.txt";
             smb = new SmbFile(url, auth);
             path = smb.GetCanonicalPath();
-            Assert.AreEqual($"smb://{this.ServerName}/NOT-EXISTS-SHARE/NOT-EXISTS-FILE.txt", path);
+            Assert.AreEqual($"smb://{this.ServerName}/NOT-EXISTS-SHARE/NOT-EXISTS-FILE.txt".ToUpper(), path.ToUpper());
 
             //末尾にスペースを入れる
             url = $"smb://{this.ServerName}/FreeArea/SharpCifsTest  ";
             smb = new SmbFile(url, auth);
             path = smb.GetCanonicalPath();
-            Assert.AreEqual($"smb://{this.ServerName}/FreeArea/SharpCifsTest", path); //スペースが無くなるはず
+            Assert.AreEqual($"smb://{this.ServerName}/FreeArea/SharpCifsTest".ToUpper(), path.ToUpper()); //スペースが無くなるはず
         }
 
 
@@ -573,17 +573,34 @@ namespace TestSharpCifs
             {
                 throw;
             }
-            
-
 
             //var nbtAddrs = NbtAddress.GetAllByAddress("COCO4");
             //var nbtAddrs = NbtAddress.GetAllByAddress("127.0.0.1");
-            var nbtAddrs = NbtAddress.GetAllByAddress("192.168.254.11");
+            var nbtAddrs = NbtAddress.GetAllByAddress($"{this.ServerIp}");
 
             foreach (var nbtAddr in nbtAddrs)
             {
                 this.Out($"{nbtAddr.GetHostName()} - {nbtAddr.GetInetAddress()}");
             }
+        }
+
+        [TestMethod()]
+        public void BigFileTranferTest()
+        {
+            var url = this.GetUriString("Others/Comic/KAKERU - 魔法少女プリティ☆ベル/[KAKERU] 魔法少女プリティ☆ベル 第04巻.zip");
+
+            var startTime = DateTime.Now;
+            Out($"Start");
+
+            var smb = new SmbFile(url);
+            var stream = new MemoryStream();
+            using (var smbStream = smb.GetInputStream())
+            {
+                ((Stream)smbStream).CopyTo(stream);
+            }
+            Out($"End: {(DateTime.Now - startTime).TotalMilliseconds} msec");
+
+            var end = 1;
         }
     }
 }
