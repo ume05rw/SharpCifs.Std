@@ -114,6 +114,14 @@ namespace SharpCifs
         }
 
         /// <summary>
+        /// Apply the value written in Config.
+        /// </summary>
+        public static void Apply()
+        {
+            Smb.SmbConstants.ApplyConfig();
+        }
+
+        /// <summary>
         /// This static method registers the SMB URL protocol handler which is
         /// required to use SMB URLs with the <tt>java.net.URL</tt> class.
         /// </summary>

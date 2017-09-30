@@ -228,13 +228,14 @@ namespace SharpCifs.Smb
     /// <seealso cref="FilePath">Sharpen.FilePath</seealso>
     public class SmbFile : UrlConnection
     {
+        /// <summary>
+        /// Apply the value written in Config, and dispose unused TCP connection cache.
+        /// </summary>
         public static void Initialize()
         {
             SmbTransport.ClearCachedConnections();
             SmbConstants.ApplyConfig();
         }
-
-
 
         internal const int ORdonly = 0x01;
 
