@@ -529,7 +529,8 @@ namespace SharpCifs.Smb
             }
             catch (TransportException te)
             {
-                throw new SmbException("Failed to connect: " + Address, te);
+                // IO Exception
+                throw new SmbException($"Failed to connect, local: {LocalAddr}, remote: {Address}", te);
             }
         }
 

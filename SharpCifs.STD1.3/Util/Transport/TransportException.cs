@@ -33,12 +33,12 @@ namespace SharpCifs.Util.Transport
         {
         }
 
-        public TransportException(Exception rootCause)
+        public TransportException(Exception rootCause) : base(rootCause.Message, rootCause)
         {
             this._rootCause = rootCause;
         }
 
-        public TransportException(string msg, Exception rootCause) : base(msg)
+        public TransportException(string msg, Exception rootCause) : base(msg, rootCause)
         {
             this._rootCause = rootCause;
         }

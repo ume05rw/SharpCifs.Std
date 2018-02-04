@@ -63,7 +63,7 @@ namespace SharpCifs.Dcerpc
         {
         }
 
-        public DcerpcException(string msg, Exception rootCause) : base(msg)
+        public DcerpcException(string msg, Exception rootCause) : base(msg, rootCause)
         {
             this._rootCause = rootCause;
         }

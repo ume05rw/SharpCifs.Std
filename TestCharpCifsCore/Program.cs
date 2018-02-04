@@ -32,20 +32,32 @@ namespace TestCharpCifsCore
             Info.UserName = Secrets.Get("UserName");
             Info.Password = Secrets.Get("Password");
 
-            Auth = new NtlmPasswordAuthentication(null, Info.UserName, Info.Password);
+            using (var file = new FileStream(@"C:\dev\log\sharpcifs.log", FileMode.OpenOrCreate, FileAccess.ReadWrite))
+            using (var writer = new StreamWriter(file, System.Text.Encoding.UTF8))
+            {
+                writer.Write("log start");
+                SharpCifs.Util.LogStream.SetInstance(writer);
+                var logger = SharpCifs.Util.LogStream.GetInstance();
+                logger.Level = 3;
 
-            //**Change local port for NetBios.
-            //  In many cases, use of the well-known port is restricted. **
-            SharpCifs.Config.SetProperty("jcifs.smb.client.lport", "2137");
+                //Auth = new NtlmPasswordAuthentication(null, Info.UserName, Info.Password);
 
-            BigFileTranferTest();
+                ////**Change local port for NetBios.
+                ////  In many cases, use of the well-known port is restricted. **
+                //SharpCifs.Config.SetProperty("jcifs.smb.client.lport", "2137");
+
+                //Program.BigFileTranferTest();
 
 
-            Program.NameResolutionTest2();
+                //Program.NameResolutionTest2();
 
-            Program.NameResolutionTest();
+                //Program.NameResolutionTest();
 
-            Program.LanScanTest();
+                //Program.LanScanTest();
+
+                Program.ConnectionFailure();
+
+            }
 
             var end = 1;
         }
@@ -140,6 +152,53 @@ namespace TestCharpCifsCore
                 {
                     Out($"Workgroup: {wgName} - Access Denied");
                 }
+            }
+        }
+
+        private static void ConnectionFailure()
+        {
+            //try
+            //{
+            //    //フォルダが存在しない。
+            //    var smb1 = new SmbFile("smb://root:igaHaraW@192.168.254.11/FreeArea/NotExistFolder/");
+            //    var exists = smb1.Exists();
+            //}
+            //catch (Exception ex)
+            //{
+            //    throw ex;
+            //}
+
+            //try
+            //{
+            //    //フォルダにも拘わらず、末尾の'/'が無い。
+            //    var smb1 = new SmbFile("smb://root:igaHaraW@192.168.254.11/FreeArea/SharpCifsTest3");
+            //    var exists = smb1.Exists();
+            //}
+            //catch (Exception ex)
+            //{
+            //    throw ex;
+            //}
+
+            try
+            {
+                //サーバが存在しない。
+                var smb1 = new SmbFile("smb://root:igaHaraW@192.168.254.111/FreeArea/SharpCifsTest3/");
+                var exists = smb1.Exists();
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+
+            try
+            {
+                //共有が存在しない。
+                var smb1 = new SmbFile("smb://root:igaHaraW@192.168.254.11/NotExistShare/");
+                var exists = smb1.Exists();
+            }
+            catch (Exception ex)
+            {
+                throw ex;
             }
         }
 

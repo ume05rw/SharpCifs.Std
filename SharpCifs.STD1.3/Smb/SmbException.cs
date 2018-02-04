@@ -164,7 +164,7 @@ namespace SharpCifs.Smb
         }
 
         internal SmbException(int errcode, Exception rootCause)
-            : base(GetMessageByCode(errcode))
+            : base(GetMessageByCode(errcode), rootCause)
         {
             _status = GetStatusByCode(errcode);
             this._rootCause = rootCause;
@@ -175,7 +175,7 @@ namespace SharpCifs.Smb
             _status = NtStatus.NtStatusUnsuccessful;
         }
 
-        public SmbException(string msg, Exception rootCause) : base(msg)
+        public SmbException(string msg, Exception rootCause) : base(msg, rootCause)
         {
             this._rootCause = rootCause;
             _status = NtStatus.NtStatusUnsuccessful;
