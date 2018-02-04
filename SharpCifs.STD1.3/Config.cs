@@ -343,6 +343,11 @@ namespace SharpCifs
         public static IPAddress GetLocalHost()
         {
             string addr = (string)_prp.GetProperty("jcifs.smb.client.laddr");
+
+            // When "laddr" is NOT specified, all addresses of the local I/F are used.
+            if (string.IsNullOrEmpty(addr))
+                addr = "0.0.0.0";
+
             IPAddress result = null;
 
             if (addr != null)
