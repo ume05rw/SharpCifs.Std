@@ -529,8 +529,11 @@ namespace SharpCifs.Smb
             }
             catch (TransportException te)
             {
+                var local = (IPEndPoint)this.Socket?.LocalEndPoint;
+                var remote = (IPEndPoint)this.Socket?.RemoteEndPoint;
+                
                 // IO Exception
-                throw new SmbException($"Failed to connect, local: {LocalAddr}, remote: {Address}", te);
+                throw new SmbException($"Failed to connect, {Address}  [ {local?.Address}:{local?.Port} --> {remote?.Address}:{remote?.Port} ]", te);
             }
         }
 
