@@ -63,10 +63,11 @@ namespace SharpCifs.Dcerpc
         {
             if (key.Equals("endpoint"))
             {
-                Endpoint = val.ToString().ToLower();
-                if (Endpoint.StartsWith("\\pipe\\"))
+                Endpoint = val.ToString();
+                var lep = this.Endpoint.ToLower();
+                if (lep.StartsWith("\\pipe\\"))
                 {
-                    string iface = (string)_interfaces.Get(Runtime.Substring(Endpoint, 6));
+                    string iface = (string)_interfaces.Get(Runtime.Substring(lep, 6));
                     if (iface != null)
                     {
                         int c;

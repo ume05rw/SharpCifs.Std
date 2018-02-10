@@ -40,7 +40,7 @@ namespace SharpCifs.Smb
     /// is the usage of a URL scheme [1] to specify the target file or
     /// directory. SmbFile URLs have the following syntax:
     /// <blockquote><pre>
-    /// smb://[[[domain;]username[:password]@]server[:port]/[[share/[dir/]file]]][?[param=value[param2=value2[...]]]
+    /// smb://[[[domain;]username[:password]@]server[:port]/[[share/[dir/]file]]][?param=value[param2=value2[...]]]
     /// </pre></blockquote>
     /// This example:
     /// <blockquote><pre>
@@ -1241,9 +1241,14 @@ namespace SharpCifs.Smb
         /// <exception cref="System.IO.IOException"></exception>
         public void Connect()
         {
-            SmbTransport trans;
-            SmbSession ssn;
-            UniAddress addr;
+            if (this.IsConnected() && this.Tree.Session.transport.TconHostName == null)
+            {
+                /* Tree thinks it is connected but transport disconnected
+                 * under it, reset tree to reflect the truth.
+                 */
+                this.Tree.TreeDisconnect(true);
+            }
+
             if (IsConnected())
             {
                 return;
