@@ -21,7 +21,7 @@ namespace SharpCifs.Util
 {
     public class Hexdump
     {
-        private static readonly string Nl = @"\r\n"; //Runtime.GetProperty("line.separator");
+        private static readonly string Nl = "\r\n"; //Runtime.GetProperty("line.separator");
 
         private static readonly int NlLength = Nl.Length;
 
@@ -64,7 +64,7 @@ namespace SharpCifs.Util
                 return;
             }
             int s = length % 16;
-            int r = (s == 0) ? length / 16 : length / 16 + 1;
+            int r = (length + 15) / 16;
             char[] c = new char[r * (74 + NlLength)];
             char[] d = new char[16];
             int i;
@@ -106,7 +106,7 @@ namespace SharpCifs.Util
                 ci += 16;
                 c[ci++] = '|';
                 //Sharpen.Runtime.GetCharsForString(NL, 0, NL_LENGTH, c, ci);
-                c = Nl.ToCharArray(0, NlLength);
+                Array.Copy(Nl.ToCharArray(0, NlLength), 0, c, ci, NlLength);
                 ci += NlLength;
             }
             while (si < length);
