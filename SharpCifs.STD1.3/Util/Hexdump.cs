@@ -21,9 +21,7 @@ namespace SharpCifs.Util
 {
     public class Hexdump
     {
-        private static readonly string Nl = "\r\n"; //Runtime.GetProperty("line.separator");
-
-        private static readonly int NlLength = Nl.Length;
+        private static readonly int NlLength = Environment.NewLine.Length;
 
         private static readonly char[] SpaceChars = 
         {
@@ -106,7 +104,7 @@ namespace SharpCifs.Util
                 ci += 16;
                 c[ci++] = '|';
                 //Sharpen.Runtime.GetCharsForString(NL, 0, NL_LENGTH, c, ci);
-                Array.Copy(Nl.ToCharArray(0, NlLength), 0, c, ci, NlLength);
+                Array.Copy(Environment.NewLine.ToCharArray(0, NlLength), 0, c, ci, NlLength);
                 ci += NlLength;
             }
             while (si < length);
