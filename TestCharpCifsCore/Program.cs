@@ -55,7 +55,9 @@ namespace TestCharpCifsCore
 
                 //Program.LanScanTest();
 
-                Program.ConnectionFailure();
+                //Program.ConnectionFailure();
+
+                Program.DisposeTest();
 
             }
 
@@ -113,8 +115,6 @@ namespace TestCharpCifsCore
 
         private static void LanScanTest()
         {
-
-
             var lan = new SmbFile("smb://", "");
             var workgroups = lan.ListFiles();
 
@@ -200,6 +200,24 @@ namespace TestCharpCifsCore
             {
                 throw ex;
             }
+        }
+
+        private static void DisposeTest()
+        {
+            var url = GetUriString("FreeArea/SharpCifsTest2/bigfile.zip");
+
+            var startTime = DateTime.Now;
+            Out($"Start");
+
+            var smb = new SmbFile(url);
+            var stream = new MemoryStream();
+            var smbStream = smb.GetInputStream();
+            ((Stream)smbStream).CopyTo(stream);
+            smbStream.Dispose();
+
+            Out($"End: {(DateTime.Now - startTime).TotalMilliseconds} msec");
+
+            var end = 1;
         }
 
 

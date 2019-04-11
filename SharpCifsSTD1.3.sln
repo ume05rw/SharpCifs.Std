@@ -1,13 +1,13 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio 14
-VisualStudioVersion = 14.0.25420.1
+# Visual Studio 15
+VisualStudioVersion = 15.0.28010.2036
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SharpCifs.STD1.3", "SharpCifs.STD1.3\SharpCifs.STD1.3.csproj", "{19D5580A-27C8-42D0-B5F1-4ECFABB816E7}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TestSharpCifs", "TestSharpCifs\TestSharpCifs.csproj", "{1B95FFC1-3222-4A07-A715-56DA9558A957}"
 EndProject
-Project("{8BB2217D-0F2D-49D1-97BC-3654ED321F3B}") = "TestCharpCifsCore", "TestCharpCifsCore\TestCharpCifsCore.xproj", "{A264F3A7-F02F-424D-BAAE-B4BAA20CC391}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "TestCharpCifsCore", "TestCharpCifsCore\TestCharpCifsCore.csproj", "{A264F3A7-F02F-424D-BAAE-B4BAA20CC391}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -156,5 +156,8 @@ Global
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {05912A0D-9B78-4563-8C18-C96516392F3F}
 	EndGlobalSection
 EndGlobal
