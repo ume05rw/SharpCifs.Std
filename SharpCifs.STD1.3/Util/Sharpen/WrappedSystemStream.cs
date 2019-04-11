@@ -152,5 +152,11 @@ namespace SharpCifs.Util.Sharpen
                 }
             }
         }
+
+        protected override void Dispose(bool disposing)
+        {
+            this.Close();
+            base.Dispose(disposing);
+        }
     }
 }
