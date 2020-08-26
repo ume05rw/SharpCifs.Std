@@ -16,7 +16,7 @@
 // Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 using System;
 using System.Collections.Generic;
-using System.IO;
+using System.IO;c
 using System.Linq;
 using System.Net;
 using System.Net.Sockets;
@@ -520,7 +520,6 @@ namespace SharpCifs.Smb
             }
         }
 
-        /// <exception cref="SharpCifs.Smb.SmbException"></exception>
         public virtual void Connect()
         {
             try
@@ -529,9 +528,19 @@ namespace SharpCifs.Smb
             }
             catch (TransportException te)
             {
-                var local = (IPEndPoint)this.Socket?.LocalEndPoint;
-                var remote = (IPEndPoint)this.Socket?.RemoteEndPoint;
-                
+                IPEndPoint local = null;
+                IPEndPoint remote = null;
+
+                try
+                {
+                    local = (IPEndPoint)this.Socket?.LocalEndPoint;
+                    remote = (IPEndPoint)this.Socket?.RemoteEndPoint;
+                }
+                catch (SocketException)
+                {
+
+                }
+
                 // IO Exception
                 throw new SmbException($"Failed to connect, {Address}  [ {local?.Address}:{local?.Port} --> {remote?.Address}:{remote?.Port} ]", te);
             }
