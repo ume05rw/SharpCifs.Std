@@ -520,6 +520,7 @@ namespace SharpCifs.Smb
             }
         }
 
+        /// <exception cref="SharpCifs.Smb.SmbException"></exception>
         public virtual void Connect()
         {
             try
