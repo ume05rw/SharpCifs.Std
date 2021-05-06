@@ -1,6 +1,14 @@
 SharpCifs.Std
 ====
 
+# ** DEPRECATED! **
+
+This library has only SMB version 1 features, which are not supported by the current Windows.  
+
+See: [TalAloni's SMBLibrary implements SMB Client and Server](https://github.com/TalAloni/SMBLibrary), or my Simple Client Wrapper [EzSmb](https://github.com/ume05rw/EzSmb).
+
+* * *
+
 Xamarin & .NET Core Ready, SMB/CIFS(Windows shared folder) Access Library.    
 This is a port of [SharpCifs](https://github.com/zinkpad/SharpCifs) to .NET Standard.
   
