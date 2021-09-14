@@ -97,7 +97,7 @@ namespace SharpCifs.Smb
             {
                 var failedTransport = new List<SmbTransport>();
 
-                foreach (var transport in SmbConstants.Connections)
+                foreach (var transport in SmbConstants.Connections.ToArray())
                 {
                     //強制破棄フラグONのとき、接続状態がどうであれ破棄する。
                     if (force)
