@@ -14,20 +14,20 @@
 // You should have received a copy of the GNU Lesser General Public
 // License along with this library; if not, write to the Free Software
 // Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+using SharpCifs.Netbios;
+using SharpCifs.Util;
+using SharpCifs.Util.Sharpen;
+using SharpCifs.Util.Transport;
 using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Net;
 using System.Net.Sockets;
-using SharpCifs.Netbios;
-using SharpCifs.Util;
-using SharpCifs.Util.Sharpen;
-using SharpCifs.Util.Transport;
 
 namespace SharpCifs.Smb
 {
-    public class SmbTransport : Transport
+	public class SmbTransport : Transport
     {
         internal static readonly byte[] Buf = new byte[0xFFFF];
 
@@ -97,7 +97,7 @@ namespace SharpCifs.Smb
             {
                 var failedTransport = new List<SmbTransport>();
 
-                foreach (var transport in SmbConstants.Connections)
+                foreach (var transport in SmbConstants.Connections.ToArray())
                 {
                     //強制破棄フラグONのとき、接続状態がどうであれ破棄する。
                     if (force)
